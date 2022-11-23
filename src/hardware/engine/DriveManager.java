@@ -13,6 +13,7 @@ public class DriveManager {
     public static void drive(int speed) {
         wheelLeft.update(restFrequencyLeft + speed);
         wheelRight.update(restFrequencyRight - speed);
+        //todo je fixt helemaal niks!
     }
 
     public static void turn(int degree, int speed) {
