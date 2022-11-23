@@ -33,6 +33,6 @@ public class DriveManager {
 
     public static void brake() {
         wheelLeft.update(restFrequencyLeft);
-        wheelRight.update(restFrequencyRight);
+        wheelRight.update(restFrequencyRight); //TODO fix dit
     }
 }
