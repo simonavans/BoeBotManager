@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="BoeBotManager" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="control.RobotMain" />
+    <module name="BoeBotManager" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
