@@ -2,30 +2,32 @@ package control;
 
 import TI.BoeBot;
 import TI.PinMode;
+import hardware.engine.DriveManager;
 import hardware.gripper.Gripper;
 import hardware.sensors.Antenna;
-import hardware.sensors.LineDetector;
 
 public class RobotMain {
+    private static Antenna antennaL;
+    private static Antenna antennaR;
+    private static boolean isToggled;
+    private static boolean state;
 
     public static void main(String[] args) {
+        init();
+    }
 
-        boolean isToggled = true;
-        boolean state = true;
-        Antenna antennaL = new Antenna((byte)7);
-        Antenna antennaR = new Antenna((byte)8);
-        LineDetector lineRight = new LineDetector((byte)0);
-        LineDetector lineMiddle = new LineDetector((byte)1);
-        LineDetector lineLeft = new LineDetector((byte)2);
+    private static void init() {
+        antennaL = new Antenna((byte)7);
+        antennaR = new Antenna((byte)8);
+        isToggled = true;
+        state = true;
         BoeBot.setMode(0, PinMode.Input);
-
         Gripper.open();
+    }
 
+    private static void runLoop() {
         while (true) {
-//            DriveManager.drive(20);
-//            System.out.print("left:" + lineLeft.getSensorValue());
-//            System.out.print(" middle:" + lineMiddle.getSensorValue());
-//            System.out.println(" right:" + lineRight.getSensorValue());
+            DriveManager.drive(20);
             if (!BoeBot.digitalRead(0)) {
                 if (!isToggled) {
                     state = !state;

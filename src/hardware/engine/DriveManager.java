@@ -11,9 +11,15 @@ public class DriveManager {
     public static final int restFrequencyRight = 1504;
 
     public static void drive(int speed) {
-        wheelLeft.update(restFrequencyLeft + speed);
-        wheelRight.update(restFrequencyRight - speed);
-        //todo je fixt helemaal niks!
+        int frequencyLeft = restFrequencyLeft + speed;
+        int frequencyRight = restFrequencyRight - speed;
+
+        if (wheelLeft.getPulseWidth() != frequencyLeft) {
+            wheelLeft.update(frequencyLeft);
+        }
+        if (wheelRight.getPulseWidth() != frequencyRight) {
+            wheelRight.update(frequencyRight);
+        }
     }
 
     public static void turn(int degree, int speed) {
