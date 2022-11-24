@@ -42,4 +42,12 @@ public class DriveManager {
         wheelLeft.update(restFrequencyLeft);
         wheelRight.update(restFrequencyRight); //TODO fix dit
     }
+
+    public static void wheelLeft(int speed) {
+        wheelLeft.update(1500 + speed);
+    }
+
+    public static void wheelRight(int speed) {
+        wheelRight.update(1500 - speed);
+    }
 }
