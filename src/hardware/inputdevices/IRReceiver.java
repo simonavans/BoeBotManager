@@ -23,7 +23,7 @@ public class IRReceiver extends Updatable {
 
         System.out.println("Waiting for Commands....");
 
-        while (true) {
+        while(true) {
             String command = "";
             int pulseLen = BoeBot.pulseIn(0, false, 6000);
             if (pulseLen > 2000) {
@@ -34,26 +34,32 @@ public class IRReceiver extends Updatable {
                     } else {
                         button[i] = 1;
                     }
-                    command += Integer.toString(button[i]);
+
+                    if (i < 7) {
+                        command += Integer.toString(button[i]);
+                    }
                 }
-                if (command.equals("0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0")) {
+
+                if (command.equals("0, 0, 0, 0, 0, 0, 0")) {
                     gripper.open();
-                } else if (command.equals("0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0")) {
+                } else if (command.equals("0, 1, 0, 0, 0, 0, 0")) {
                     gripper.close();
-                } else if (command.equals("0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0")) {
+                } else if (command.equals("0, 1, 0, 0, 1, 0, 0")) {
                     engine.drive(0);
-                } else if (command.equals("0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0")) {
+                } else if (command.equals("0, 1, 1, 0, 1, 0, 0")) {
                     engine.drive(-0);
-                } else if (command.equals("1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0")) {
+                } else if (command.equals("1, 0, 0, 0, 1, 0, 0")) {
                     engine.turnDegrees(90, 0);
-                } else if (command.equals("0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0")) {
+                } else if (command.equals("0, 0, 0, 0, 1, 0, 0")) {
                     engine.turnDegrees(-90, 0);
-                } else if (command.equals("1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0")) {
+                } else if (command.equals("1, 0, 0, 0, 0, 0, 0")) {
                     engine.brake();
-                } else if (command.equals("1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0")) {
+                } else if (command.equals("1, 0, 0, 1, 0, 0, 0")) {
                     break;
                 }
             }
+
+            BoeBot.wait(10);
         }
     }
 
