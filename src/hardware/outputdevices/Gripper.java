@@ -12,12 +12,10 @@ import link.Updatable;
  * The BoeBot will be able to grab and release small objects with its gripper.
  */
 public class Gripper {
-    private final RobotMain callback;
     private Servo gripper;
 
-    public Gripper(byte pinNumber, RobotMain callback) {
+    public Gripper(byte pinNumber) {
         PinRegistry.registerPin(pinNumber, false);
-        this.callback = callback;
         gripper = new Servo(pinNumber);
     }
 

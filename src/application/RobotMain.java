@@ -29,8 +29,8 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     private IRReceiver irReceiver = new IRReceiver((byte) 0, this);
 
     // Output devices, they alter the state of the BoeBot and/or the environment
-    private Engine engine = new Engine((byte) 0, (byte) 0, this);
-    private Gripper gripper = new Gripper((byte) 0, this);
+    private Engine engine = new Engine((byte) 0, (byte) 0);
+    private Gripper gripper = new Gripper((byte) 0);
 
     /**
      * Runs when the BoeBot has started up (only if the code in this project has been

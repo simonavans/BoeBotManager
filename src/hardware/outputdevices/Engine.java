@@ -7,16 +7,16 @@ import hardware.PinRegistry;
 import link.Updatable;
 
 public class Engine {
-    private final RobotMain callback;
+//    private final RobotMain callback;
     private Servo wheelLeft;
     private Servo wheelRight;
     private final int stopPulseLengthLeft = 1500;
     private final int stopPulseLengthRight = 1504;
 
-    public Engine(byte leftWheelPin, byte rightWheelPin, RobotMain callback) {
+    public Engine(byte leftWheelPin, byte rightWheelPin) {
         PinRegistry.registerPin(leftWheelPin, false);
         PinRegistry.registerPin(rightWheelPin, false);
-        this.callback = callback;
+//        this.callback = callback;
 
         wheelLeft = new Servo((int) leftWheelPin);
         wheelRight = new Servo((int) rightWheelPin);
