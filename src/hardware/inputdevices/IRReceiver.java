@@ -7,6 +7,8 @@ import hardware.outputdevices.Engine;
 import hardware.outputdevices.Gripper;
 import link.Updatable;
 
+import java.util.Arrays;
+
 /**
  * Class for the infrared sensor/receiver that picks up signals
  * from a Vivanco remote.
@@ -34,32 +36,32 @@ public class IRReceiver extends Updatable {
                     } else {
                         button[i] = 1;
                     }
-
-                    if (i < 7) {
-                        command += Integer.toString(button[i]);
-                    }
                 }
 
-                if (command.equals("0, 0, 0, 0, 0, 0, 0")) {
+                command = Arrays.toString(button).replace(",", "");
+                command = command.replace("[", "").replace("]", "");
+                command = command.replace(" ", "");
+
+                if (command.equals("000000010000")) {
                     gripper.open();
-                } else if (command.equals("0, 1, 0, 0, 0, 0, 0")) {
+                } else if (command.equals("010000010000")) {
                     gripper.close();
-                } else if (command.equals("0, 1, 0, 0, 1, 0, 0")) {
+                } else if (command.equals("010010010000")) {
                     engine.drive(0);
-                } else if (command.equals("0, 1, 1, 0, 1, 0, 0")) {
+                } else if (command.equals("011010010000")) {
                     engine.drive(-0);
-                } else if (command.equals("1, 0, 0, 0, 1, 0, 0")) {
+                } else if (command.equals("100010010000")) {
                     engine.turnDegrees(90, 0);
-                } else if (command.equals("0, 0, 0, 0, 1, 0, 0")) {
+                } else if (command.equals("000010010000")) {
                     engine.turnDegrees(-90, 0);
-                } else if (command.equals("1, 0, 0, 0, 0, 0, 0")) {
+                } else if (command.equals("100000010000")) {
                     engine.brake();
-                } else if (command.equals("1, 0, 0, 1, 0, 0, 0")) {
+                } else if (command.equals("100100010000")) {
                     break;
                 }
             }
 
-            BoeBot.wait(10);
+            BoeBot.wait(20);
         }
     }
 
