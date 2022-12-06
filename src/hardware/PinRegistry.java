@@ -9,22 +9,36 @@ import java.util.ArrayList;
  * Manages all pins in use by the hardware
  */
 public class PinRegistry {
-    private static ArrayList<Byte> connectedPins = new ArrayList<>();
+    private static ArrayList<Integer> connectedPins = new ArrayList<>();
 
-    /**
-     * Registers new pins and makes sure that the same pin is never used twice.
-     * If a pin is registered, this class will also handle the pin mode.
-     * @param pinNumber which pin number to occupy.
-     * @param isInputPin whether the pin should be set to input or output.
-     */
-    public static void registerPin(byte pinNumber, boolean isInputPin) {
-        if (connectedPins.contains(pinNumber)) {
-            // TODO? handle exception
-            throw new IllegalArgumentException(
-                    "Pin number " + pinNumber + " is already occupied"
-            );
+    public static void registerPins(int[] pinNumbers, boolean[] pinModes) {
+        if (pinNumbers.length != pinModes.length) {
+//            throw new IllegalArgumentException(
+//                    "Parameter pinNumbers must have the same amount of elements as pinModes. " +
+//                            "pinNumbers length was: " + pinNumbers.length +
+//                            ", pinModes length was: " + pinModes.length
+//            );
         }
-        connectedPins.add(pinNumber);
-        BoeBot.setMode(pinNumber, isInputPin ? PinMode.Input : PinMode.Output);
+
+        int pinNumber;
+
+        for (int i=0; i<pinNumbers.length; i++) {
+            pinNumber = pinNumbers[i];
+
+            if (pinNumber < 0 || pinNumber > 15) {
+                throw new IllegalArgumentException(
+                        "Invalid pin number. Pin number must be between 0 and 15 (inclusive) but was: " + pinNumber
+                );
+            }
+
+            if (connectedPins.contains(pinNumber)) {
+                // TODO? handle exception
+                throw new IllegalArgumentException(
+                        "Pin number " + pinNumber + " is already occupied"
+                );
+            }
+            connectedPins.add(pinNumber);
+            BoeBot.setMode(pinNumber, pinModes[i] ? PinMode.Input : PinMode.Output);
+        }
     }
 }

@@ -9,9 +9,13 @@ import link.Updatable;
  * It extends past the BoeBot and can sense objects in front of it.
  */
 public class AntennaSensor extends Updatable implements Sensor<Boolean> {
+    private final int pinNumber;
+    private final RobotMain callback;
 
-    public AntennaSensor(byte pinNumber, RobotMain callback) {
-        super(pinNumber, true, callback);
+    public AntennaSensor(int pinNumber, RobotMain callback) {
+        super(new int[]{pinNumber}, new boolean[]{true});
+        this.pinNumber = pinNumber;
+        this.callback = callback;
     }
 
     @Override
