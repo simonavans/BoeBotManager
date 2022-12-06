@@ -11,7 +11,7 @@ public class Engine {
     private Servo wheelLeft;
     private Servo wheelRight;
     private final int stopPulseLengthLeft = 1500;
-    private final int stopPulseLengthRight = 1504;
+    private final int stopPulseLengthRight = 1500;
 
     public Engine(byte leftWheelPin, byte rightWheelPin) {
         PinRegistry.registerPin(leftWheelPin, false);

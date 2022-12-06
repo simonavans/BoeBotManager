@@ -1,9 +1,8 @@
 package application;
 
 import TI.BoeBot;
+import TI.PinMode;
 import hardware.inputdevices.Button;
-import hardware.outputdevices.Buzzer;
-import hardware.outputdevices.led.LED;
 import link.Updatable;
 import hardware.inputdevices.sensor.AntennaSensor;
 import hardware.inputdevices.sensor.LineSensor;
@@ -26,7 +25,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     private LineSensor lineSensorLeft = new LineSensor((byte) 5, this);
     private LineSensor lineSensorMiddle = new LineSensor((byte) 6, this);
     private LineSensor lineSensorRight = new LineSensor((byte) 7, this);
-    private IRReceiver irReceiver = new IRReceiver((byte) 3, this);
+    private IRReceiver irReceiver = new IRReceiver((byte) 0, this);
 
     // Output devices, they alter the state of the BoeBot and/or the environment
     private Engine engine = new Engine((byte) 12, (byte) 13);
@@ -37,6 +36,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
      * uploaded to the BoeBot).
      */
     public static void main(String[] args) {
+        BoeBot.setMode(0, PinMode.Input);
         // Cannot call run() directly, since the main method is static
         RobotMain main = new RobotMain();
         main.init();
@@ -47,11 +47,11 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
      * Adds all hardware to the devices ArrayList, so they can be updated.
      */
     private void init() {
-        devices.add(antennaFront);
-        devices.add(ultrasonicFront);
-        devices.add(lineSensorLeft);
-        devices.add(lineSensorMiddle);
-        devices.add(lineSensorRight);
+//        devices.add(antennaFront);
+//        devices.add(ultrasonicFront);
+//        devices.add(lineSensorLeft);
+//        devices.add(lineSensorMiddle);
+//        devices.add(lineSensorRight);
         devices.add(irReceiver);
     }
 
@@ -60,11 +60,10 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
      */
     private void run() {
         while(true) {
-            this.irReceiver.Receiver();
-//            for (Updatable device : devices) {
-//                device.update();
-//            }
-//            BoeBot.wait(10);
+            for (Updatable device : devices) {
+                device.update();
+            }
+            BoeBot.wait(10);
         }
     }
 
@@ -72,8 +71,23 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
      * Runs when the infrared receiver callback is triggered
      */
     @Override
-    public void onIRReceiverEvent() {
+    public void onIRReceiverEvent(String command) {
+        if (command.equals("000000010000")) {
+        } else if (command.equals("010000010000")) {
+            gripper.close();
+        } else if (command.equals("010010010000")) {
+            engine.turnDegrees(270, 50);
+        } else if (command.equals("110010010000")) {
+            engine.turnDegrees(90, 50);
+        } else if (command.equals("100010010000")) {
+            engine.drive(-50);
+        } else if (command.equals("000010010000")) {
+            engine.drive(50);
+        } else if (command.equals("100000010000")) {
+            engine.brake();
+        }
 
+        engine.brake();
     }
 
     /**
