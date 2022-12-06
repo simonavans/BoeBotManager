@@ -96,6 +96,23 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     @Override
     public void onIRReceiverEvent(String command) {
         overrideMode = true;
+
+        if (command.equals("000000010000")) {
+        } else if (command.equals("010000010000")) {
+            gripper.close();
+        } else if (command.equals("010010010000")) {
+            engine.turnDegrees(270, 50);
+        } else if (command.equals("110010010000")) {
+            engine.turnDegrees(90, 50);
+        } else if (command.equals("100010010000")) {
+            engine.drive(-50);
+        } else if (command.equals("000010010000")) {
+            engine.drive(50);
+        } else if (command.equals("100000010000")) {
+            engine.brake();
+        }
+
+        engine.brake();
     }
 
     /**
