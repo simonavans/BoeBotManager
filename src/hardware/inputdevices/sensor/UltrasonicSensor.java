@@ -11,20 +11,31 @@ import link.Updatable;
  * between the sensor and the object that caused the reverberation.
  */
 public class UltrasonicSensor extends Updatable implements Sensor<Integer> {
-    private final byte inputPinNumber;
-    private final byte outputPinNumber;
+    private final int inputPinNumber;
+    private final int outputPinNumber;
+    private final RobotMain callback;
     private int measuredDistance;
     private int threshold; //TODO set threshold
+    private boolean enabled = true;
 
-    public UltrasonicSensor(byte inputPinNumber, byte outputPinNumber, RobotMain callback) {
-        super(inputPinNumber, true, outputPinNumber, false, callback);
+    public UltrasonicSensor(int inputPinNumber, int outputPinNumber, RobotMain callback) {
+        super(new int[]{inputPinNumber, outputPinNumber}, new boolean[]{true, false});
         this.inputPinNumber = inputPinNumber;
         this.outputPinNumber = outputPinNumber;
+        this.callback = callback;
+    }
+
+    public void enable() {
+        enabled = true;
+    }
+
+    public void disable() {
+        enabled = false;
     }
 
     @Override
     public void update() {
-        if (isOnOrOverThreshold()) {
+        if (isOnOrOverThreshold() && enabled) {
             callback.onSensorEvent(this);
         }
     }

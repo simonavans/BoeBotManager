@@ -8,8 +8,13 @@ import link.Updatable;
  * Class for a breadboard Button on the BoeBot.
  */
 public class Button extends Updatable {
+    private final int pinNumber;
+    private final RobotMain callback;
+
     public Button(byte pinNumber, RobotMain callback) {
-        super(pinNumber, true, callback);
+        super(new int[]{pinNumber}, new boolean[]{true});
+        this.pinNumber = pinNumber;
+        this.callback = callback;
     }
 
     @Override

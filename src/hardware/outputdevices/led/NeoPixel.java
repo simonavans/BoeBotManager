@@ -12,7 +12,7 @@ public class NeoPixel implements LED {
     private final RobotMain callback;
 
     public NeoPixel(byte pinNumber, RobotMain callback) {
-        PinRegistry.registerPin(pinNumber, false);
+//        PinRegistry.registerPin(pinNumber, false);
         this.pinNumber = pinNumber;
         this.callback = callback;
     }

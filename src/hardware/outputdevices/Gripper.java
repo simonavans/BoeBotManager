@@ -1,9 +1,7 @@
 package hardware.outputdevices;
 
 import TI.Servo;
-import application.RobotMain;
 import hardware.PinRegistry;
-import link.Updatable;
 
 //TODO make gripper grab objects slower
 
@@ -13,17 +11,24 @@ import link.Updatable;
  */
 public class Gripper {
     private Servo gripper;
+    private boolean isOpen;
 
-    public Gripper(byte pinNumber) {
-        PinRegistry.registerPin(pinNumber, false);
+    public Gripper(int pinNumber) {
+        PinRegistry.registerPins(new int[]{pinNumber}, new boolean[]{false});
         gripper = new Servo(pinNumber);
+    }
+
+    public boolean isOpen() {
+        return isOpen;
     }
 
     public void open() {
         gripper.update(1700);
+        isOpen = true;
     }
 
     public void close() {
         gripper.update(1000);
+        isOpen = false;
     }
 }

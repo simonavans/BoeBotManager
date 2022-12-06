@@ -4,32 +4,32 @@ import TI.BoeBot;
 import TI.Servo;
 import application.RobotMain;
 import hardware.PinRegistry;
-import link.Updatable;
 
 public class Engine {
-//    private final RobotMain callback;
     private Servo wheelLeft;
     private Servo wheelRight;
     private final int stopPulseLengthLeft = 1500;
-    private final int stopPulseLengthRight = 1500;
+    private final int stopPulseLengthRight = 1504;
+    private String driveState;
 
-    public Engine(byte leftWheelPin, byte rightWheelPin) {
-        PinRegistry.registerPin(leftWheelPin, false);
-        PinRegistry.registerPin(rightWheelPin, false);
-//        this.callback = callback;
-
-        wheelLeft = new Servo((int) leftWheelPin);
-        wheelRight = new Servo((int) rightWheelPin);
+    public Engine(int leftWheelPin, int rightWheelPin) {
+        PinRegistry.registerPins(new int[]{leftWheelPin, rightWheelPin}, new boolean[]{false, false});
+        wheelLeft = new Servo(leftWheelPin);
+        wheelRight = new Servo(rightWheelPin);
     }
 
     public void drive(int speed) {
-        int frequencyLeft = stopPulseLengthLeft - speed;
-        int frequencyRight = stopPulseLengthRight + speed;
+        int frequencyLeft = stopPulseLengthLeft + speed;
+        int frequencyRight = stopPulseLengthRight - speed;
 
-        wheelLeft.update(frequencyLeft);
-        wheelRight.update(frequencyRight);
-        BoeBot.wait(1000);
-        brake();
+        if (wheelLeft.getPulseWidth() != frequencyLeft) {
+            wheelLeft.update(frequencyLeft);
+        }
+        if (wheelRight.getPulseWidth() != frequencyRight) {
+            wheelRight.update(frequencyRight);
+        }
+
+        driveState = "forward";
     }
 
     public void turnSpeed(Integer leftWheelSpeed, Integer rightWheelSpeed) {
@@ -45,15 +45,16 @@ public class Engine {
         int wheelSpeed;
         if (speed < 0) {
             wheelSpeed = -speed;
+            driveState = "turn1";
         } else {
             wheelSpeed = speed;
+            driveState = "turn2";
         }
         int speedRatio = (int) ((wheelSpeed / 5) * 1.9);
         int turn90Degrees = 16000 / speedRatio;
         int askedTurn = (turn90Degrees / 90) * degree;
         wheelLeft.update(stopPulseLengthLeft - speed);
         wheelRight.update(stopPulseLengthRight - speed);
-
         BoeBot.wait(askedTurn);
         brake();
     }
@@ -61,5 +62,6 @@ public class Engine {
     public void brake() {
         wheelLeft.update(stopPulseLengthLeft);
         wheelRight.update(stopPulseLengthRight);
+        driveState = "stopped";
     }
 }

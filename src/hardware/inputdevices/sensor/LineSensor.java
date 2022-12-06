@@ -10,16 +10,21 @@ import link.Updatable;
  * on a white surface.
  */
 public class LineSensor extends Updatable implements Sensor<Integer> {
-    private final int threshold = 1400; //TODO set threshold
+    private final int pinNumber;
+    private final LineSensors callback;
+    private int threshold; //TODO set threshold
 
-    public LineSensor(byte pinNumber, RobotMain callback) {
-        super(pinNumber, true, callback);
+    public LineSensor(int pinNumber, LineSensors callback) {
+        super(new int[]{pinNumber}, new boolean[]{true});
+        this.pinNumber = pinNumber;
+        this.callback = callback;
     }
 
-    @Override
     public void update() {
         if (isOnOrOverThreshold()) {
-            callback.onSensorEvent(this);
+            callback.onLineDetectEvent(this);
+        } else {
+            callback.onLineUndetectEvent(this);
         }
     }
 
@@ -30,6 +35,6 @@ public class LineSensor extends Updatable implements Sensor<Integer> {
 
     @Override
     public boolean isOnOrOverThreshold() {
-        return false;
+        return BoeBot.analogRead(pinNumber) > 1550;
     }
 }
