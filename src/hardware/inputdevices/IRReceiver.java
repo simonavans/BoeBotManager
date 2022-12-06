@@ -18,20 +18,19 @@ public class IRReceiver extends Updatable {
 
     public void Receiver() {
         Gripper gripper = new Gripper((byte) 0);
-        Engine engine = new Engine((byte) 0, (byte) 0);
+        Engine engine = new Engine((byte) 12, (byte) 13);
 
-        BoeBot.setMode(0, PinMode.Input);
-        BoeBot.setMode(9, PinMode.Output);
+        BoeBot.setMode(3, PinMode.Input);
 
         System.out.println("Waiting for Commands....");
 
         while(true) {
-            String command = "";
-            int pulseLen = BoeBot.pulseIn(0, false, 6000);
+            String command;
+            int pulseLen = BoeBot.pulseIn(3, false, 6000);
             if (pulseLen > 2000) {
                 int button[] = new int[12];
                 for (int i = 0; i < 12; i++) {
-                    if (BoeBot.pulseIn(0, false, 20000) < 800) {
+                    if (BoeBot.pulseIn(3, false, 20000) < 800) {
                         button[i] = 0;
                     } else {
                         button[i] = 1;
@@ -42,26 +41,30 @@ public class IRReceiver extends Updatable {
                 command = command.replace("[", "").replace("]", "");
                 command = command.replace(" ", "");
 
+                System.out.println("command: "+ command);
+
                 if (command.equals("000000010000")) {
                     gripper.open();
                 } else if (command.equals("010000010000")) {
                     gripper.close();
                 } else if (command.equals("010010010000")) {
-                    engine.drive(0);
-                } else if (command.equals("011010010000")) {
-                    engine.drive(-0);
+                    engine.turnDegrees(270, 50);
+                } else if (command.equals("110010010000")) {
+                    engine.turnDegrees(90, 50);
                 } else if (command.equals("100010010000")) {
-                    engine.turnDegrees(90, 0);
+                    engine.drive(-50);
                 } else if (command.equals("000010010000")) {
-                    engine.turnDegrees(-90, 0);
+                    engine.drive(50);
                 } else if (command.equals("100000010000")) {
                     engine.brake();
                 } else if (command.equals("100100010000")) {
                     break;
                 }
+
+                engine.brake();
             }
 
-            BoeBot.wait(20);
+            BoeBot.wait(10);
         }
     }
 

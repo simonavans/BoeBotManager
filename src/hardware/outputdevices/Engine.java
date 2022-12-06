@@ -23,15 +23,13 @@ public class Engine {
     }
 
     public void drive(int speed) {
-        int frequencyLeft = stopPulseLengthLeft + speed;
-        int frequencyRight = stopPulseLengthRight - speed;
+        int frequencyLeft = stopPulseLengthLeft - speed;
+        int frequencyRight = stopPulseLengthRight + speed;
 
-        if (wheelLeft.getPulseWidth() != frequencyLeft) {
-            wheelLeft.update(frequencyLeft);
-        }
-        if (wheelRight.getPulseWidth() != frequencyRight) {
-            wheelRight.update(frequencyRight);
-        }
+        wheelLeft.update(frequencyLeft);
+        wheelRight.update(frequencyRight);
+        BoeBot.wait(1000);
+        brake();
     }
 
     public void turnSpeed(Integer leftWheelSpeed, Integer rightWheelSpeed) {
@@ -55,6 +53,7 @@ public class Engine {
         int askedTurn = (turn90Degrees / 90) * degree;
         wheelLeft.update(stopPulseLengthLeft - speed);
         wheelRight.update(stopPulseLengthRight - speed);
+
         BoeBot.wait(askedTurn);
         brake();
     }

@@ -18,13 +18,13 @@ public class PinRegistry {
      * @param isInputPin whether the pin should be set to input or output.
      */
     public static void registerPin(byte pinNumber, boolean isInputPin) {
-        if (connectedPins.contains(pinNumber)) {
-            // TODO? handle exception
-            throw new IllegalArgumentException(
-                    "Pin number " + pinNumber + " is already occupied"
-            );
-        }
-        connectedPins.add(pinNumber);
-        BoeBot.setMode(pinNumber, isInputPin ? PinMode.Input : PinMode.Output);
+//        if (connectedPins.contains(pinNumber)) {
+//            // TODO? handle exception
+//            throw new IllegalArgumentException(
+//                    "Pin number " + pinNumber + " is already occupied"
+//            );
+//        }
+//        connectedPins.add(pinNumber);
+//        BoeBot.setMode(pinNumber, isInputPin ? PinMode.Input : PinMode.Output);
     }
 }

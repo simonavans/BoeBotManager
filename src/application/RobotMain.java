@@ -21,16 +21,16 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     private static ArrayList<Updatable> devices = new ArrayList<>();
 
     // Input devices, they check for input from surroundings
-    private AntennaSensor antennaFront = new AntennaSensor((byte) 0, this);
-    private UltrasonicSensor ultrasonicFront = new UltrasonicSensor((byte) 0, (byte) 0, this);
-    private LineSensor lineSensorLeft = new LineSensor((byte) 0, this);
-    private LineSensor lineSensorMiddle = new LineSensor((byte) 0, this);
-    private LineSensor lineSensorRight = new LineSensor((byte) 0, this);
-    private IRReceiver irReceiver = new IRReceiver((byte) 0, this);
+    private AntennaSensor antennaFront = new AntennaSensor((byte) 1, this);
+    private UltrasonicSensor ultrasonicFront = new UltrasonicSensor((byte) 2, (byte) 4, this);
+    private LineSensor lineSensorLeft = new LineSensor((byte) 5, this);
+    private LineSensor lineSensorMiddle = new LineSensor((byte) 6, this);
+    private LineSensor lineSensorRight = new LineSensor((byte) 7, this);
+    private IRReceiver irReceiver = new IRReceiver((byte) 3, this);
 
     // Output devices, they alter the state of the BoeBot and/or the environment
-    private Engine engine = new Engine((byte) 0, (byte) 0);
-    private Gripper gripper = new Gripper((byte) 0);
+    private Engine engine = new Engine((byte) 12, (byte) 13);
+    private Gripper gripper = new Gripper((byte) 9);
 
     /**
      * Runs when the BoeBot has started up (only if the code in this project has been
@@ -60,10 +60,11 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
      */
     private void run() {
         while(true) {
-            for (Updatable device : devices) {
-                device.update();
-            }
-            BoeBot.wait(10);
+            this.irReceiver.Receiver();
+//            for (Updatable device : devices) {
+//                device.update();
+//            }
+//            BoeBot.wait(10);
         }
     }
 

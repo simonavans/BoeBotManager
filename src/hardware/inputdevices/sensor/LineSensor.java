@@ -10,7 +10,7 @@ import link.Updatable;
  * on a white surface.
  */
 public class LineSensor extends Updatable implements Sensor<Integer> {
-    private int threshold; //TODO set threshold
+    private final int threshold = 1400; //TODO set threshold
 
     public LineSensor(byte pinNumber, RobotMain callback) {
         super(pinNumber, true, callback);
