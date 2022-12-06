@@ -1,6 +1,7 @@
 package hardware.inputdevices.sensor;
 
 import TI.BoeBot;
+import TI.Timer;
 import application.RobotMain;
 import link.Updatable;
 
@@ -15,14 +16,16 @@ public class UltrasonicSensor extends Updatable implements Sensor<Integer> {
     private final int outputPinNumber;
     private final RobotMain callback;
     private int measuredDistance;
-    private int threshold; //TODO set threshold
+    private int threshold = 9000;
     private boolean enabled = true;
+    private Timer clock = new Timer(100);
 
     public UltrasonicSensor(int inputPinNumber, int outputPinNumber, RobotMain callback) {
         super(new int[]{inputPinNumber, outputPinNumber}, new boolean[]{true, false});
         this.inputPinNumber = inputPinNumber;
         this.outputPinNumber = outputPinNumber;
         this.callback = callback;
+        clock.mark();
     }
 
     public void enable() {
@@ -48,6 +51,8 @@ public class UltrasonicSensor extends Updatable implements Sensor<Integer> {
      * reverberation and the sensor (in centimeter)
      */
     public Integer getSensorValue() {
+        if (!clock.timeout()) return measuredDistance;
+
         // Send a signal of 1ms to trigger the ultrasonic speaker
         BoeBot.digitalWrite(outputPinNumber, true);
         BoeBot.wait(1);
@@ -55,6 +60,7 @@ public class UltrasonicSensor extends Updatable implements Sensor<Integer> {
         // Wait for the return pulse of the ultrasonic sensor
         int pulse = BoeBot.pulseIn(inputPinNumber, true, 10000); //TODO see if the 10s wait period causes issues
         // To convert the pulse into centimeters, the pulse has to be divided by 58 (integer division is intentional)
+        System.out.println(pulse);
         measuredDistance = pulse / 58;
         return measuredDistance;
     }

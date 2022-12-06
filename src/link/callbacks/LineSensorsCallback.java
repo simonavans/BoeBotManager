@@ -2,7 +2,6 @@ package link.callbacks;
 
 public interface LineSensorsCallback {
     void onDetectCrossroad();
-    void onDeviateLeft();
-    void onDeviateRight();
+    void onDeviate(boolean toLeft);
     void onDriveStraight();
 }

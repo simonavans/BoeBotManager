@@ -17,7 +17,7 @@ public class BasicLED implements LED {
     private boolean blinkState = false;
 
     public BasicLED(byte pinNumber) {
-        PinRegistry.registerPin(pinNumber, false);
+        PinRegistry.registerPins(new int[]{pinNumber}, new boolean[]{false});
         this.pinNumber = pinNumber;
     }
 

@@ -18,7 +18,7 @@ public class Buzzer {
     private boolean beepState;
 
     public Buzzer(byte pinNumber) {
-        PinRegistry.registerPin(pinNumber, false);
+        PinRegistry.registerPins(new int[]{pinNumber}, new boolean[]{false});
 
         // Constructor of PWM sets pinNumber's PinMode to PWM instead of Output
         pwm = new PWM(pinNumber, 0);

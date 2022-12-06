@@ -12,11 +12,14 @@ import link.Updatable;
 public class LineSensor extends Updatable implements Sensor<Integer> {
     private final int pinNumber;
     private final LineSensors callback;
-    private int threshold; //TODO set threshold
+    private int threshold;
+    private int ceiling;
 
-    public LineSensor(int pinNumber, LineSensors callback) {
-        super(new int[]{pinNumber}, new boolean[]{true});
+    public LineSensor(int pinNumber, int threshold, int ceiling, LineSensors callback) {
+        super(new int[]{pinNumber}, new boolean[]{});
         this.pinNumber = pinNumber;
+        this.threshold = threshold;
+        this.ceiling = ceiling;
         this.callback = callback;
     }
 
@@ -35,6 +38,7 @@ public class LineSensor extends Updatable implements Sensor<Integer> {
 
     @Override
     public boolean isOnOrOverThreshold() {
-        return BoeBot.analogRead(pinNumber) > 1550;
+        return BoeBot.analogRead(pinNumber) >= threshold &&
+                BoeBot.analogRead(pinNumber) < ceiling;
     }
 }

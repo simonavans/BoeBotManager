@@ -1,5 +1,6 @@
 package hardware.inputdevices.sensor;
 
+import TI.Timer;
 import application.RobotMain;
 import link.Updatable;
 
@@ -11,31 +12,36 @@ public class LineSensors extends Updatable {
     private LineSensor sensorMiddle;
     private LineSensor sensorRight;
     private boolean[] detectionStates = {false, false, false};
-    private boolean detectedCrossroad = false;
+    private Timer crossroadTimer;
 
-    public LineSensors(int[] pinNumbers, boolean[] pinModes, RobotMain callback) {
-        super(pinNumbers, pinModes);
-        sensorLeft = new LineSensor(pinNumbers[0], this);
-        sensorMiddle = new LineSensor(pinNumbers[1], this);
-        sensorRight = new LineSensor(pinNumbers[2], this);
+    public LineSensors(int[] pinNumbers, RobotMain callback) {
+        super(pinNumbers, new boolean[]{});
+        sensorLeft = new LineSensor(pinNumbers[0], 1000, 1300, this);
+        sensorMiddle = new LineSensor(pinNumbers[1],1100, 1500, this);
+        sensorRight = new LineSensor(pinNumbers[2], 700, 1300, this);
         this.callback = callback;
     }
 
     @Override
     public void update() {
-        if (Arrays.equals(detectionStates, new boolean[]{true, true, true}) &&
-                !detectedCrossroad) {
-            callback.onDetectCrossroad();
-            detectedCrossroad = true;
-        } else if (detectionStates[0] && !detectionStates[2]) {
-            callback.onDeviateRight();
-            detectedCrossroad = false;
-        } else if (!detectionStates[0] && detectionStates[2]) {
-            callback.onDeviateLeft();
-            detectedCrossroad = false;
-        } else if (detectionStates[0] && detectionStates[2]) {
-            callback.onDriveStraight();
-            detectedCrossroad = false;
+        if (crossroadTimer == null) {
+            sensorLeft.update();
+            sensorMiddle.update();
+            sensorRight.update();
+
+            if (Arrays.equals(detectionStates, new boolean[]{true, true, true})) {
+                callback.onDetectCrossroad();
+                crossroadTimer = new Timer(2000);
+                crossroadTimer.mark();
+            } else if (detectionStates[0] && !detectionStates[2]) {
+                callback.onDeviate(false);
+            } else if (!detectionStates[0] && detectionStates[2]) {
+                callback.onDeviate(true);
+            } else if (!detectionStates[0] && detectionStates[1]) {
+                callback.onDriveStraight();
+            }
+        } else if(crossroadTimer.timeout()) {
+            crossroadTimer = null;
         }
     }
 

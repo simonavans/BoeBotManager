@@ -1,5 +1,6 @@
 package hardware.outputdevices;
 
+import TI.BoeBot;
 import TI.Servo;
 import hardware.PinRegistry;
 
@@ -16,6 +17,7 @@ public class Gripper {
     public Gripper(int pinNumber) {
         PinRegistry.registerPins(new int[]{pinNumber}, new boolean[]{false});
         gripper = new Servo(pinNumber);
+        open();
     }
 
     public boolean isOpen() {
@@ -23,12 +25,12 @@ public class Gripper {
     }
 
     public void open() {
-        gripper.update(1700);
+        gripper.update(2200);
         isOpen = true;
     }
 
     public void close() {
-        gripper.update(1000);
+        gripper.update(1400);
         isOpen = false;
     }
 }

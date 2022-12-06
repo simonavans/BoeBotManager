@@ -2,22 +2,34 @@ package hardware.outputdevices;
 
 import TI.BoeBot;
 import TI.Servo;
-import application.RobotMain;
-import hardware.PinRegistry;
+import TI.Timer;
+import link.Updatable;
 
-public class Engine {
+public class Engine extends Updatable {
     private Servo wheelLeft;
     private Servo wheelRight;
     private final int stopPulseLengthLeft = 1500;
-    private final int stopPulseLengthRight = 1500;
+    private final int stopPulseLengthRight = 1495;
     private int speedWheelLeft = 1500;
     private int speedWheelRight = 1500;
     private String driveState;
+    private Timer turnTimer;
 
     public Engine(int leftWheelPin, int rightWheelPin) {
-        PinRegistry.registerPins(new int[]{leftWheelPin, rightWheelPin}, new boolean[]{false, false});
+        super(new int[]{leftWheelPin, rightWheelPin}, new boolean[]{false, false});
         wheelLeft = new Servo(leftWheelPin);
         wheelRight = new Servo(rightWheelPin);
+        brake();
+    }
+
+    @Override
+    public void update() {
+        if (turnTimer == null) return;
+
+        if (turnTimer.timeout()) {
+            drive(25);
+            turnTimer = null;
+        }
     }
 
     public void drive(int speed) {
@@ -34,30 +46,28 @@ public class Engine {
         driveState = "forward";
     }
 
-    public void turnSpeed(Integer leftWheelSpeed, Integer rightWheelSpeed) {
-        if (leftWheelSpeed != null) {
+    public void turnSpeed(int leftWheelSpeed, int rightWheelSpeed) {
+        wheelLeft.update(stopPulseLengthLeft + leftWheelSpeed);
+        wheelRight.update(stopPulseLengthRight - rightWheelSpeed);
+    }
+
+    public void turn45(int leftWheelSpeed, int rightWheelSpeed) {
+        if (turnTimer == null) {
             wheelLeft.update(stopPulseLengthLeft + leftWheelSpeed);
-        }
-        if (rightWheelSpeed != null) {
             wheelRight.update(stopPulseLengthRight - rightWheelSpeed);
+            turnTimer = new Timer(1200);
+            turnTimer.mark();
         }
     }
 
     public void turnDegrees(int degree, int speed) {
-        int wheelSpeed;
-        if (speed < 0) {
-            wheelSpeed = -speed;
-            driveState = "turn1";
-        } else {
-            wheelSpeed = speed;
-            driveState = "turn2";
-        }
+        int wheelSpeed = Math.abs(speed);
         int speedRatio = (int) ((wheelSpeed / 5) * 1.9);
         int turn90Degrees = 16000 / speedRatio;
         int askedTurn = (turn90Degrees / 90) * degree;
-        wheelLeft.update(stopPulseLengthLeft - speed);
-        wheelRight.update(stopPulseLengthRight - speed);
-        BoeBot.wait(askedTurn);
+        wheelLeft.update(stopPulseLengthLeft + speed);
+        wheelRight.update(stopPulseLengthRight + speed);
+        BoeBot.wait(Math.abs(askedTurn));
         brake();
     }
 

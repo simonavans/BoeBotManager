@@ -4,6 +4,7 @@ import TI.BoeBot;
 import TI.PinMode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Manages all pins in use by the hardware
@@ -12,12 +13,14 @@ public class PinRegistry {
     private static ArrayList<Integer> connectedPins = new ArrayList<>();
 
     public static void registerPins(int[] pinNumbers, boolean[] pinModes) {
+        if (pinModes.length == 0) return;
+
         if (pinNumbers.length != pinModes.length) {
-//            throw new IllegalArgumentException(
-//                    "Parameter pinNumbers must have the same amount of elements as pinModes. " +
-//                            "pinNumbers length was: " + pinNumbers.length +
-//                            ", pinModes length was: " + pinModes.length
-//            );
+            throw new IllegalArgumentException(
+                    "Parameter pinNumbers must have the same amount of elements as pinModes. " +
+                            "pinNumbers length was: " + pinNumbers.length +
+                            ", pinModes length was: " + pinModes.length
+            );
         }
 
         int pinNumber;
@@ -33,9 +36,9 @@ public class PinRegistry {
 
             if (connectedPins.contains(pinNumber)) {
                 // TODO? handle exception
-                throw new IllegalArgumentException(
-                        "Pin number " + pinNumber + " is already occupied"
-                );
+//                throw new IllegalArgumentException(
+//                        "Pin number " + pinNumber + " is already occupied"
+//                );
             }
             connectedPins.add(pinNumber);
             BoeBot.setMode(pinNumber, pinModes[i] ? PinMode.Input : PinMode.Output);
