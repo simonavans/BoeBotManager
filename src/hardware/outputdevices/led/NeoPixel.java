@@ -36,8 +36,9 @@ public class NeoPixel implements LED {
         return color;
     }
 
-    public void setColor(Color newColor) {
+    public void setColorAndTurnOn(Color newColor) {
         color = newColor;
+        turnOn();
     }
 
     @Override
@@ -48,7 +49,7 @@ public class NeoPixel implements LED {
 
     @Override
     public void turnOff() {
-        BoeBot.rgbSet(ledNumber, new Color(0));
+        BoeBot.rgbSet(ledNumber, Color.BLACK);
         BoeBot.rgbShow();
     }
 

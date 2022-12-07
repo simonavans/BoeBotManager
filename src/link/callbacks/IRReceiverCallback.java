@@ -5,4 +5,5 @@ package link.callbacks;
  */
 public interface IRReceiverCallback {
     void onIRReceiverEvent(String command);
+    void onStopReceiving();
 }

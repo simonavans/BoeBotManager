@@ -2,17 +2,18 @@ package hardware.inputdevices;
 
 import TI.BoeBot;
 import application.RobotMain;
+import hardware.PinRegistry;
 import link.Updatable;
 
 /**
  * Class for a breadboard Button on the BoeBot.
  */
-public class Button extends Updatable {
+public class Button implements Updatable {
     private final int pinNumber;
     private final RobotMain callback;
 
     public Button(byte pinNumber, RobotMain callback) {
-        super(new int[]{pinNumber}, new String[]{"input"});
+        PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"input"});
         this.pinNumber = pinNumber;
         this.callback = callback;
     }

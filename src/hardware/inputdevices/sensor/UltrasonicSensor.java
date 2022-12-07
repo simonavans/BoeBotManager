@@ -3,6 +3,7 @@ package hardware.inputdevices.sensor;
 import TI.BoeBot;
 import TI.Timer;
 import application.RobotMain;
+import hardware.PinRegistry;
 import link.Updatable;
 
 /**
@@ -11,17 +12,17 @@ import link.Updatable;
  * reverberation signal. It then returns a signal that represents the distance
  * between the sensor and the object that caused the reverberation.
  */
-public class UltrasonicSensor extends Updatable implements Sensor<Integer> {
+public class UltrasonicSensor implements Updatable, Sensor<Integer> {
     private final int inputPinNumber;
     private final int outputPinNumber;
     private final RobotMain callback;
     private int measuredDistance;
-    private int threshold = 9000;
+    private int threshold = 3;
     private boolean enabled = true;
     private Timer clock = new Timer(100);
 
     public UltrasonicSensor(int inputPinNumber, int outputPinNumber, RobotMain callback) {
-        super(new int[]{inputPinNumber, outputPinNumber}, new String[]{"input", "output"});
+        PinRegistry.registerPins(new int[]{inputPinNumber, outputPinNumber}, new String[]{"input", "output"});
         this.inputPinNumber = inputPinNumber;
         this.outputPinNumber = outputPinNumber;
         this.callback = callback;
@@ -32,23 +33,18 @@ public class UltrasonicSensor extends Updatable implements Sensor<Integer> {
         enabled = true;
     }
 
-    public void disable() {
-        enabled = false;
-    }
-
     @Override
     public void update() {
         if (isOnOrOverThreshold() && enabled) {
             callback.onSensorEvent(this);
+            enabled = false;
         }
     }
 
-    //FIXME This following method does not seem to work
-    //TODO prevent execution if previous execution was less than 100ms earlier
     /**
-     * Returns the measured distance (in centimeter) of the ultrasonic sensor.
+     * Returns the measured distance (in centimeters) of the ultrasonic sensor.
      * @return distance (in centimeters) between the object that caused the
-     * reverberation and the sensor (in centimeter)
+     * reverberation and the sensor (in centimeters)
      */
     public Integer getSensorValue() {
         if (!clock.timeout()) return measuredDistance;
@@ -58,7 +54,7 @@ public class UltrasonicSensor extends Updatable implements Sensor<Integer> {
         BoeBot.uwait(1);
         BoeBot.digitalWrite(outputPinNumber, false);
         // Wait for the return pulse of the ultrasonic sensor
-        int pulse = BoeBot.pulseIn(inputPinNumber, true, 10000); //TODO see if the 10s wait period causes issues
+        int pulse = BoeBot.pulseIn(inputPinNumber, true, 10000);
         // To convert the pulse into centimeters, the pulse has to be divided by 58 (integer division is intentional)
         measuredDistance = pulse / 58;
         return measuredDistance;
@@ -66,13 +62,13 @@ public class UltrasonicSensor extends Updatable implements Sensor<Integer> {
 
     /**
      * Returns true if the distance between the ultrasonic sensor and the
-     * object which caused the reverberation is greater than or equal to
+     * object which caused the reverberation is smaller than or equal to
      * the threshold value, which is considered to be "right in front of it"
      * @return true if distance is greater than or equal to the threshold value,
-     * false if distance is smaller than the threshold value
+     * false if distance is smaller than the threshold value.
      */
     @Override
     public boolean isOnOrOverThreshold() {
-        return getSensorValue() <= 6 && getSensorValue() > 0;
+        return getSensorValue() <= threshold && getSensorValue() > 0;
     }
 }

@@ -1,16 +1,8 @@
 package link;
 
-import application.RobotMain;
-import hardware.PinRegistry;
-
-public abstract class Updatable extends Hardware {
-
-    public Updatable(int[] pinNumbers, String[] pinModes) {
-        super(pinNumbers, pinModes);
-    }
-
+public interface Updatable {
     /**
      * The method used for letting the hardware execute its code once.
      */
-    public abstract void update();
+    void update();
 }

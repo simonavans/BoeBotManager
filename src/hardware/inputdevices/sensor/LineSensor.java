@@ -2,6 +2,7 @@ package hardware.inputdevices.sensor;
 
 import TI.BoeBot;
 import application.RobotMain;
+import hardware.PinRegistry;
 import link.Updatable;
 
 /**
@@ -9,14 +10,14 @@ import link.Updatable;
  * The BoeBot uses three of these sensors to be able to follow a black line
  * on a white surface.
  */
-public class LineSensor extends Updatable implements Sensor<Integer> {
+public class LineSensor implements Updatable, Sensor<Integer> {
     private final int pinNumber;
     private final LineSensors callback;
     private int threshold;
     private int ceiling;
 
     public LineSensor(int pinNumber, int threshold, int ceiling, LineSensors callback) {
-        super(new int[]{pinNumber}, new String[]{"adc"});
+        PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"adc"});
         this.pinNumber = pinNumber;
         this.threshold = threshold;
         this.ceiling = ceiling;

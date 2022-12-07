@@ -2,25 +2,26 @@ package hardware.inputdevices.sensor;
 
 import TI.BoeBot;
 import application.RobotMain;
+import hardware.PinRegistry;
 import link.Updatable;
 
 /**
  * The antenna sensor is a type of sensor that can be compared to a whisker.
  * It extends past the BoeBot and can sense objects in front of it.
  */
-public class AntennaSensor extends Updatable implements Sensor<Boolean> {
+public class AntennaSensor implements Updatable, Sensor<Boolean> {
     private final int pinNumber;
     private final RobotMain callback;
 
     public AntennaSensor(int pinNumber, RobotMain callback) {
-        super(new int[]{pinNumber}, new String[]{"input"});
+        PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"input"});
         this.pinNumber = pinNumber;
         this.callback = callback;
     }
 
     @Override
     public void update() {
-        if (!BoeBot.digitalRead(pinNumber)) {
+        if (isOnOrOverThreshold()) {
             callback.onSensorEvent(this);
         }
     }
