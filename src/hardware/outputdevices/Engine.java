@@ -51,11 +51,11 @@ public class Engine extends Updatable {
         wheelRight.update(stopPulseLengthRight - rightWheelSpeed);
     }
 
-    public void turn45(int leftWheelSpeed, int rightWheelSpeed) {
+    public void turn90(int leftWheelSpeed, int rightWheelSpeed) {
         if (turnTimer == null) {
             wheelLeft.update(stopPulseLengthLeft + leftWheelSpeed);
             wheelRight.update(stopPulseLengthRight - rightWheelSpeed);
-            turnTimer = new Timer(1200);
+            turnTimer = new Timer(1000);
             turnTimer.mark();
         }
     }
