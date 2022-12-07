@@ -31,49 +31,49 @@ public class LineSensors extends Updatable implements LineSensorCallback {
 
     @Override
     public void update() {
-        if (afterCrossroadTimer == null && beforeCrossroadTimer == null) {
-            sensorLeft.update();
-            sensorMiddle.update();
-            sensorRight.update();
-
-            if (deviateLeftTimer == null) {
-                if (!detectionStates[0] && detectionStates[2]) {
-                    deviateLeftTimer = new Timer(400);
-                    deviateLeftTimer.mark();
-                }
-            } else if (deviateLeftTimer.timeout() && !detectedCrossroad) {
-                callback.onDeviate(true);
-                deviateLeftTimer = null;
-            }
-
-            if (deviateRightTimer == null) {
-                if (detectionStates[0] && !detectionStates[2]) {
-                    deviateRightTimer = new Timer(400);
-                    deviateRightTimer.mark();
-                }
-            } else if (deviateRightTimer.timeout() && !detectedCrossroad) {
-                callback.onDeviate(false);
-                deviateRightTimer = null;
-            }
-
-            if (Arrays.equals(detectionStates, new boolean[]{true, true, true})) {
-                detectedCrossroad = true;
-                beforeCrossroadTimer = new Timer(700);
-                beforeCrossroadTimer.mark();
-                callback.onDriveStraight();
-            } else if (!detectionStates[0] && !detectionStates[2]) {
-                detectedCrossroad = false;
-                callback.onDriveStraight();
-            }
-        } else if(afterCrossroadTimer != null && afterCrossroadTimer.timeout()) {
-            afterCrossroadTimer = null;
-            detectedCrossroad = false;
-        } else if (beforeCrossroadTimer != null && beforeCrossroadTimer.timeout()) {
-            beforeCrossroadTimer = null;
-            afterCrossroadTimer = new Timer(1500);
-            afterCrossroadTimer.mark();
-            callback.onDetectCrossroad();
-        }
+//        if (afterCrossroadTimer == null && beforeCrossroadTimer == null) {
+//            sensorLeft.update();
+//            sensorMiddle.update();
+//            sensorRight.update();
+//
+//            if (deviateLeftTimer == null) {
+//                if (!detectionStates[0] && detectionStates[2]) {
+//                    deviateLeftTimer = new Timer(400);
+//                    deviateLeftTimer.mark();
+//                }
+//            } else if (deviateLeftTimer.timeout() && !detectedCrossroad) {
+//                callback.onDeviate(true);
+//                deviateLeftTimer = null;
+//            }
+//
+//            if (deviateRightTimer == null) {
+//                if (detectionStates[0] && !detectionStates[2]) {
+//                    deviateRightTimer = new Timer(400);
+//                    deviateRightTimer.mark();
+//                }
+//            } else if (deviateRightTimer.timeout() && !detectedCrossroad) {
+//                callback.onDeviate(false);
+//                deviateRightTimer = null;
+//            }
+//
+//            if (Arrays.equals(detectionStates, new boolean[]{true, true, true})) {
+//                detectedCrossroad = true;
+//                beforeCrossroadTimer = new Timer(700);
+//                beforeCrossroadTimer.mark();
+//                callback.onDriveStraight();
+//            } else if (!detectionStates[0] && !detectionStates[2]) {
+//                detectedCrossroad = false;
+//                callback.onDriveStraight();
+//            }
+//        } else if(afterCrossroadTimer != null && afterCrossroadTimer.timeout()) {
+//            afterCrossroadTimer = null;
+//            detectedCrossroad = false;
+//        } else if (beforeCrossroadTimer != null && beforeCrossroadTimer.timeout()) {
+//            beforeCrossroadTimer = null;
+//            afterCrossroadTimer = new Timer(1500);
+//            afterCrossroadTimer.mark();
+//            callback.onDetectCrossroad();
+//        }
     }
 
     @Override

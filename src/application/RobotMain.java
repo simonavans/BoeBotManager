@@ -33,8 +33,6 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
 
     private boolean overrideMode = false;
 
-    private int counter = 0;
-
     /**
      * Runs when the BoeBot has started up (only if the code in this project has been
      * uploaded to the BoeBot).
@@ -64,6 +62,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             for (Updatable device : devices) {
                 device.update();
             }
+
             BoeBot.wait(10);
         }
     }
@@ -119,7 +118,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
         if (command.equals("000000010000")) {
             gripper.open();
         } else if (command.equals("010000010000")) {
-            gripper.close();
+            ultrasonicFront.enable();
         } else if (command.equals("010010010000")) {
             engine.turn90(25, -50);
         } else if (command.equals("110010010000")) {
@@ -131,6 +130,12 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
         } else if (command.equals("100000010000")) {
             engine.brake();
         }
+
+        BoeBot.rgbSet(2, new Color(128, 0, 0));
+        BoeBot.rgbShow();
+        BoeBot.wait(100);
+        BoeBot.rgbSet(2, new Color(0, 0, 0));
+        BoeBot.rgbShow();
     }
 
     /**
@@ -140,12 +145,11 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
      */
     @Override
     public void onSensorEvent(Sensor source) {
+        System.out.println(ultrasonicFront.getSensorValue());
         if (source == ultrasonicFront) {
-            if (ultrasonicFront.getSensorValue() > 200) {
-//                gripper.open();
-            } else {
-//                gripper.close();
-//                ultrasonicFront.disable();
+            if (ultrasonicFront.getSensorValue() <= 3) {
+                gripper.close();
+                ultrasonicFront.disable();
             }
         }
     }

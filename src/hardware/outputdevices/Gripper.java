@@ -31,7 +31,7 @@ public class Gripper extends Hardware {
     }
 
     public void close() {
-        gripper.update(1400);
+        gripper.update(1250);
         isOpen = false;
     }
 }

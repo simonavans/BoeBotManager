@@ -55,12 +55,11 @@ public class UltrasonicSensor extends Updatable implements Sensor<Integer> {
 
         // Send a signal of 1ms to trigger the ultrasonic speaker
         BoeBot.digitalWrite(outputPinNumber, true);
-        BoeBot.wait(1);
+        BoeBot.uwait(1);
         BoeBot.digitalWrite(outputPinNumber, false);
         // Wait for the return pulse of the ultrasonic sensor
         int pulse = BoeBot.pulseIn(inputPinNumber, true, 10000); //TODO see if the 10s wait period causes issues
         // To convert the pulse into centimeters, the pulse has to be divided by 58 (integer division is intentional)
-        System.out.println(pulse);
         measuredDistance = pulse / 58;
         return measuredDistance;
     }
@@ -74,6 +73,6 @@ public class UltrasonicSensor extends Updatable implements Sensor<Integer> {
      */
     @Override
     public boolean isOnOrOverThreshold() {
-        return measuredDistance >= threshold;
+        return getSensorValue() <= 6 && getSensorValue() > 0;
     }
 }
