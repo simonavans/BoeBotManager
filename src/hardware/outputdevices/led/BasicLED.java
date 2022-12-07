@@ -4,12 +4,13 @@ import TI.BoeBot;
 import TI.PWM;
 import TI.Timer;
 import hardware.PinRegistry;
+import link.Hardware;
 
 /**
  * Class for a basic breadboard LED (single color, digital signal) on the BoeBot.
  * @author Simon de Cock
  */
-public class BasicLED implements LED {
+public class BasicLED extends Hardware implements LED {
     private final byte pinNumber;
     private PWM dimPWM;
     private Timer blinkMethodTimer;
@@ -17,7 +18,7 @@ public class BasicLED implements LED {
     private boolean blinkState = false;
 
     public BasicLED(byte pinNumber) {
-        PinRegistry.registerPins(new int[]{pinNumber}, new boolean[]{false});
+        super(new int[]{pinNumber}, new String[]{"pwm"});
         this.pinNumber = pinNumber;
     }
 

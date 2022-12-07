@@ -16,18 +16,19 @@ public class LineSensor extends Updatable implements Sensor<Integer> {
     private int ceiling;
 
     public LineSensor(int pinNumber, int threshold, int ceiling, LineSensors callback) {
-        super(new int[]{pinNumber}, new boolean[]{});
+        super(new int[]{pinNumber}, new String[]{"adc"});
         this.pinNumber = pinNumber;
         this.threshold = threshold;
         this.ceiling = ceiling;
         this.callback = callback;
     }
 
+    @Override
     public void update() {
         if (isOnOrOverThreshold()) {
-            callback.onLineDetectEvent(this);
+            callback.onLineDetectedEvent(this);
         } else {
-            callback.onLineUndetectEvent(this);
+            callback.onLineUndetectedEvent(this);
         }
     }
 

@@ -13,7 +13,7 @@ public class AntennaSensor extends Updatable implements Sensor<Boolean> {
     private final RobotMain callback;
 
     public AntennaSensor(int pinNumber, RobotMain callback) {
-        super(new int[]{pinNumber}, new boolean[]{true});
+        super(new int[]{pinNumber}, new String[]{"input"});
         this.pinNumber = pinNumber;
         this.callback = callback;
     }

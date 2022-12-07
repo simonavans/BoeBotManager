@@ -3,6 +3,7 @@ package hardware.outputdevices;
 import TI.BoeBot;
 import TI.Servo;
 import hardware.PinRegistry;
+import link.Hardware;
 
 //TODO make gripper grab objects slower
 
@@ -10,12 +11,12 @@ import hardware.PinRegistry;
  * Class for the gripper that is attached to the front of the BoeBot.
  * The BoeBot will be able to grab and release small objects with its gripper.
  */
-public class Gripper {
+public class Gripper extends Hardware {
     private Servo gripper;
     private boolean isOpen;
 
     public Gripper(int pinNumber) {
-        PinRegistry.registerPins(new int[]{pinNumber}, new boolean[]{false});
+        super(new int[]{pinNumber}, new String[]{"output"});
         gripper = new Servo(pinNumber);
         open();
     }

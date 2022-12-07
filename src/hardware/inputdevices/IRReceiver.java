@@ -18,7 +18,7 @@ public class IRReceiver extends Updatable {
     private final RobotMain callback;
 
     public IRReceiver(byte pinNumber, RobotMain callback) {
-        super(new int[]{pinNumber}, new boolean[]{true});
+        super(new int[]{pinNumber}, new String[]{"input"});
         this.pinNumber = pinNumber;
         this.callback = callback;
     }

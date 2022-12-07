@@ -16,7 +16,7 @@ public class Engine extends Updatable {
     private Timer turnTimer;
 
     public Engine(int leftWheelPin, int rightWheelPin) {
-        super(new int[]{leftWheelPin, rightWheelPin}, new boolean[]{false, false});
+        super(new int[]{leftWheelPin, rightWheelPin}, new String[]{"output", "output"});
         wheelLeft = new Servo(leftWheelPin);
         wheelRight = new Servo(rightWheelPin);
         brake();

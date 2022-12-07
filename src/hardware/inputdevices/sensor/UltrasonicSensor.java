@@ -21,7 +21,7 @@ public class UltrasonicSensor extends Updatable implements Sensor<Integer> {
     private Timer clock = new Timer(100);
 
     public UltrasonicSensor(int inputPinNumber, int outputPinNumber, RobotMain callback) {
-        super(new int[]{inputPinNumber, outputPinNumber}, new boolean[]{true, false});
+        super(new int[]{inputPinNumber, outputPinNumber}, new String[]{"input", "output"});
         this.inputPinNumber = inputPinNumber;
         this.outputPinNumber = outputPinNumber;
         this.callback = callback;

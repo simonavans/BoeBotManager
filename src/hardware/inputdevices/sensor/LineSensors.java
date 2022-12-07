@@ -3,10 +3,11 @@ package hardware.inputdevices.sensor;
 import TI.Timer;
 import application.RobotMain;
 import link.Updatable;
+import link.callbacks.LineSensorCallback;
 
 import java.util.Arrays;
 
-public class LineSensors extends Updatable {
+public class LineSensors extends Updatable implements LineSensorCallback {
     private RobotMain callback;
     private LineSensor sensorLeft;
     private LineSensor sensorMiddle;
@@ -15,7 +16,7 @@ public class LineSensors extends Updatable {
     private Timer crossroadTimer;
 
     public LineSensors(int[] pinNumbers, RobotMain callback) {
-        super(pinNumbers, new boolean[]{});
+        super(new int[]{}, new String[]{});
         sensorLeft = new LineSensor(pinNumbers[0], 1000, 1300, this);
         sensorMiddle = new LineSensor(pinNumbers[1],1100, 1500, this);
         sensorRight = new LineSensor(pinNumbers[2], 700, 1300, this);
@@ -45,7 +46,8 @@ public class LineSensors extends Updatable {
         }
     }
 
-    public void onLineDetectEvent(LineSensor source) {
+    @Override
+    public void onLineDetectedEvent(LineSensor source) {
         if (source == sensorLeft) {
             detectionStates[0] = true;
         } else if (source == sensorMiddle) {
@@ -55,7 +57,8 @@ public class LineSensors extends Updatable {
         }
     }
 
-    public void onLineUndetectEvent(LineSensor source) {
+    @Override
+    public void onLineUndetectedEvent(LineSensor source) {
         if (source == sensorLeft) {
             detectionStates[0] = false;
         } else if (source == sensorMiddle) {

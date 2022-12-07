@@ -3,12 +3,10 @@ package link;
 import application.RobotMain;
 import hardware.PinRegistry;
 
-public abstract class Updatable {
-    protected final boolean[] pinModes;
+public abstract class Updatable extends Hardware {
 
-    public Updatable(int[] pinNumbers, boolean[] pinModes) {
-        PinRegistry.registerPins(pinNumbers, pinModes);
-        this.pinModes = pinModes;
+    public Updatable(int[] pinNumbers, String[] pinModes) {
+        super(pinNumbers, pinModes);
     }
 
     /**

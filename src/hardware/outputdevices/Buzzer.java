@@ -5,20 +5,21 @@ import TI.PWM;
 import TI.Timer;
 import application.RobotMain;
 import hardware.PinRegistry;
+import link.Hardware;
 import link.Updatable;
 
 /**
  * Class for a buzzer on the BoeBot.
  * @author Simon de Cock
  */
-public class Buzzer {
+public class Buzzer extends Hardware {
     private PWM pwm;
     private Timer repeatingBeepMethodTimer;
     private Timer repeatingBeepTimer;
     private boolean beepState;
 
     public Buzzer(byte pinNumber) {
-        PinRegistry.registerPins(new int[]{pinNumber}, new boolean[]{false});
+        super(new int[]{pinNumber}, new String[]{"output"});
 
         // Constructor of PWM sets pinNumber's PinMode to PWM instead of Output
         pwm = new PWM(pinNumber, 0);
