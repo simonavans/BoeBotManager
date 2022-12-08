@@ -10,14 +10,14 @@ import hardware.PinRegistry;
  * @author Simon de Cock
  */
 public class BasicLED implements LED {
-    private final byte pinNumber;
+    private final int pinNumber;
     private PWM dimPWM;
     private Timer blinkMethodTimer;
     private Timer blinkTimer;
     private boolean blinkState = false;
 
-    public BasicLED(byte pinNumber) {
-        PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"pwm"});
+    public BasicLED(int pinNumber) {
+        PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"output"});
         this.pinNumber = pinNumber;
     }
 

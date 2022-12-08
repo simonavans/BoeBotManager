@@ -72,7 +72,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
             if (NavigationManager.isTurnNext()) {
                 afterCrossroadTimer = new Timer(1500);
             } else {
-                afterCrossroadTimer = new Timer(500);
+                afterCrossroadTimer = new Timer(200);
             }
             afterCrossroadTimer.mark();
             callback.onDetectCrossroad();

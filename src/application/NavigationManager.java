@@ -1,5 +1,7 @@
 package application;
 
+import TI.BoeBot;
+
 import java.util.Arrays;
 
 public class NavigationManager {
@@ -8,14 +10,15 @@ public class NavigationManager {
     private static String direction = "East";
 
     public static String nextCommandAndUpdate() {
-        System.out.println(Arrays.toString(location));
         if (direction.equals("East")) {
             location[0]++;
             if (location[0] < destination[0]) {
                 return "";
-            } else if(location[0] == destination[0]) {
+            } else if(location[0] == destination[0] && !(location[1] == destination[1])) {
                 direction = "North";
                 return "turn";
+            } else if (location[1] == destination[1]) {
+                return "brake";
             }
         } else if (direction.equals("North")) {
             location[1]++;

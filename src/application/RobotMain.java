@@ -2,6 +2,7 @@ package application;
 
 import TI.BoeBot;
 import TI.Timer;
+import hardware.inputdevices.Bluetooth;
 import hardware.inputdevices.Button;
 import hardware.inputdevices.IRReceiver;
 import hardware.inputdevices.sensor.LineSensors;
@@ -9,19 +10,17 @@ import hardware.inputdevices.sensor.Sensor;
 import hardware.inputdevices.sensor.UltrasonicSensor;
 import hardware.outputdevices.Engine;
 import hardware.outputdevices.Gripper;
+import hardware.outputdevices.led.BasicLED;
 import hardware.outputdevices.led.NeoPixel;
 import link.Updatable;
-import link.callbacks.ButtonCallback;
-import link.callbacks.IRReceiverCallback;
-import link.callbacks.LineSensorsCallback;
-import link.callbacks.SensorCallback;
+import link.callbacks.*;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCallback,
-        LineSensorsCallback {
+        LineSensorsCallback, BluetoothCallback {
     // ArrayList containing all hardware
     private static ArrayList<Updatable> updatables = new ArrayList<>();
 
@@ -30,18 +29,22 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     private IRReceiver irReceiver = new IRReceiver(15, this);
     //TODO change line sensor pin order on the BoeBot
     private LineSensors lineSensors = new LineSensors(new int[]{0, 1, 2}, this);
+    private Bluetooth bluetoothReceiver = new Bluetooth(this, 115200);
 
     // Output updatables, they alter the state of the BoeBot and/or the environment
     private Engine engine = new Engine(13, 12);
     private Gripper gripper = new Gripper(0);
     private NeoPixel irPixel = new NeoPixel(1, Color.BLACK);
     private NeoPixel locationPixel = new NeoPixel(0, new Color(128, 0, 0));
+    private NeoPixel ultrasonicPixel = new NeoPixel(2, new Color(0, 128, 0));
     //TODO make NeoPixel manager for controlling NeoPixels that indicate direction
     private NeoPixel pixelLeft = new NeoPixel(5, Color.BLACK);
     private NeoPixel pixelMiddle = new NeoPixel(4, Color.BLACK);
     private NeoPixel pixelRight = new NeoPixel(3, Color.BLACK);
+    private BasicLED ledTemp = new BasicLED(2); //TODO Temp LED for demo, remove later
 
     private Timer coordinateInputTimer;
+
 
     /**
      * Runs when the BoeBot has started up (only if the code in this project has been
@@ -62,6 +65,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
         updatables.add(irReceiver);
         updatables.add(lineSensors);
         updatables.add(engine);
+        updatables.add(bluetoothReceiver);
     }
 
     /**
@@ -124,7 +128,8 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     @Override
     public void onIRReceiverEvent(String command) {
         //TODO check receiver codes
-        //  Make brake button the on/off button on the remote
+        if (command.equals("000000000000")) return;
+
         if (command.equals("001010010000")) {
             // Button: Mute sound
             gripper.open();
@@ -135,6 +140,8 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
         } else if (command.equals("001100010000")) {
             // Button: Enter
             ultrasonicFront.enable();
+            ultrasonicPixel.setColorAndTurnOn(new Color(0, 128, 0));
+            gripper.open();
         } else if (command.equals("010010010000")) {
             // Button: Vol+ >
             engine.turn90(false);
@@ -153,7 +160,10 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             overrideLineSensors();
         } else if (coordinateInputTimer == null) {
             int code = Integer.parseInt(new StringBuilder(command.substring(0, 7)).reverse().toString(), 2);
-            if (code <= 9) {
+
+            if (code == 9) code = -1;
+
+            if (code < 9) {
                 int selectedNumber = code + 1;
 
                 if (Arrays.equals(NavigationManager.getDestination(), new Integer[]{null, null})) {
@@ -186,7 +196,18 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     public void onSensorEvent(Sensor source) {
         if (source == ultrasonicFront) {
             gripper.close();
+            ultrasonicPixel.setColorAndTurnOn(new Color(128, 0, 0));
         }
+    }
+
+    @Override
+    public void onBluetoothEvent(int data) {
+        if (data == 48) {
+            ledTemp.turnOff();
+        } else if (data == 49) {
+            ledTemp.turnOn();
+        }
+
     }
 
     @Override
@@ -194,9 +215,12 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
 
     }
 
-    public void overrideLineSensors() {
+    private void overrideLineSensors() {
         lineSensors.disable();
         NavigationManager.resetDestination();
         locationPixel.setColorAndTurnOn(new Color(128, 0, 0));
+        pixelLeft.setColorAndTurnOn(Color.BLACK);
+        pixelMiddle.setColorAndTurnOn(Color.BLACK);
+        pixelRight.setColorAndTurnOn(Color.BLACK);
     }
 }
