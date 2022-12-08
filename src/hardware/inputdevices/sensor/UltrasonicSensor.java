@@ -63,12 +63,13 @@ public class UltrasonicSensor implements Updatable, Sensor<Integer> {
     /**
      * Returns true if the distance between the ultrasonic sensor and the
      * object which caused the reverberation is smaller than or equal to
-     * the threshold value, which is considered to be "right in front of it"
+     * the threshold value, which is considered to be "right in front of it".
      * @return true if distance is greater than or equal to the threshold value,
      * false if distance is smaller than the threshold value.
      */
     @Override
     public boolean isOnOrOverThreshold() {
-        return getSensorValue() <= threshold && getSensorValue() > 0;
+        Integer measuredValue = getSensorValue();
+        return measuredValue > 0 && measuredValue <= threshold;
     }
 }

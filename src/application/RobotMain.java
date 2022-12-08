@@ -22,27 +22,28 @@ import java.util.Arrays;
 public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCallback,
         LineSensorsCallback, BluetoothCallback {
     // ArrayList containing all hardware
-    private static ArrayList<Updatable> updatables = new ArrayList<>();
+    private static final ArrayList<Updatable> updatables = new ArrayList<>();
 
     // Input updatables, they check for input from surroundings
-    private UltrasonicSensor ultrasonicFront = new UltrasonicSensor(14, 1, this);
-    private IRReceiver irReceiver = new IRReceiver(15, this);
-    //TODO change line sensor pin order on the BoeBot
-    private LineSensors lineSensors = new LineSensors(new int[]{0, 1, 2}, this);
-    private Bluetooth bluetoothReceiver = new Bluetooth(this, 115200);
+    private final UltrasonicSensor ultrasonicFront = new UltrasonicSensor(14, 1, this);
+    private final IRReceiver irReceiver = new IRReceiver(15, this);
+    private final LineSensors lineSensors = new LineSensors(new int[]{0, 1, 2}, this);
+    private final Bluetooth bluetoothReceiver = new Bluetooth(this, 115200);
 
     // Output updatables, they alter the state of the BoeBot and/or the environment
-    private Engine engine = new Engine(13, 12);
-    private Gripper gripper = new Gripper(0);
-    private NeoPixel irPixel = new NeoPixel(1, Color.BLACK);
-    private NeoPixel locationPixel = new NeoPixel(0, new Color(128, 0, 0));
-    private NeoPixel ultrasonicPixel = new NeoPixel(2, new Color(0, 128, 0));
+    private final Engine engine = new Engine(13, 12);
+    private final Gripper gripper = new Gripper(0);
+    private final NeoPixel irPixel = new NeoPixel(1, Color.BLACK);
+    private final NeoPixel locationPixel = new NeoPixel(0, new Color(128, 0, 0));
+    private final NeoPixel ultrasonicPixel = new NeoPixel(2, new Color(0, 128, 0));
     //TODO make NeoPixel manager for controlling NeoPixels that indicate direction
-    private NeoPixel pixelLeft = new NeoPixel(5, Color.BLACK);
-    private NeoPixel pixelMiddle = new NeoPixel(4, Color.BLACK);
-    private NeoPixel pixelRight = new NeoPixel(3, Color.BLACK);
-    private BasicLED ledTemp = new BasicLED(2); //TODO Temp LED for demo, remove later
+    private final NeoPixel leftLinePixel = new NeoPixel(5, Color.BLACK);
+    private final NeoPixel middleLinePixel = new NeoPixel(4, Color.BLACK);
+    private final NeoPixel rightLinePixel = new NeoPixel(3, Color.BLACK);
+    private final BasicLED tempBluetoothLED = new BasicLED(2); //TODO Temp LED for demo, remove later
 
+    // Used as a cooldown for inputting coordinates, to prevent inputting the same number twice
+    // when the button was only pressed once.
     private Timer coordinateInputTimer;
 
 
@@ -73,10 +74,12 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
      */
     private void run() {
         while (true) {
+            // Runs update method of all things listed in the updatables variable
             for (Updatable updatable : updatables) {
                 updatable.update();
             }
             if (coordinateInputTimer != null && coordinateInputTimer.timeout()) {
+                // Resets this Timer
                 coordinateInputTimer = null;
             }
             BoeBot.wait(10);
@@ -93,9 +96,9 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             engine.brake();
             overrideLineSensors();
         }
-        pixelLeft.setColorAndTurnOn(new Color(128, 0, 0));
-        pixelMiddle.setColorAndTurnOn(new Color(128, 0, 0));
-        pixelRight.setColorAndTurnOn(new Color(128, 0, 0));
+        leftLinePixel.setColorAndTurnOn(new Color(128, 0, 0));
+        middleLinePixel.setColorAndTurnOn(new Color(128, 0, 0));
+        rightLinePixel.setColorAndTurnOn(new Color(128, 0, 0));
     }
 
     @Override
@@ -103,82 +106,81 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
         if (toLeft) {
             // Too far to left, so BoeBot should turn right
             engine.turnSpeed(25, -50);
-            pixelLeft.setColorAndTurnOn(new Color(128, 0, 0));
-            pixelRight.setColorAndTurnOn(Color.BLACK);
+            leftLinePixel.setColorAndTurnOn(new Color(128, 0, 0));
+            rightLinePixel.setColorAndTurnOn(Color.BLACK);
         } else {
             // Too far to right, so BoeBot should turn left
             engine.turnSpeed(-50, 25);
-            pixelLeft.setColorAndTurnOn(Color.BLACK);
-            pixelRight.setColorAndTurnOn(new Color(128, 0, 0));
+            leftLinePixel.setColorAndTurnOn(Color.BLACK);
+            rightLinePixel.setColorAndTurnOn(new Color(128, 0, 0));
         }
-        pixelMiddle.setColorAndTurnOn(Color.BLACK);
+        middleLinePixel.setColorAndTurnOn(Color.BLACK);
     }
 
     @Override
     public void onDriveStraight() {
         engine.drive(25);
-        pixelLeft.setColorAndTurnOn(Color.BLACK);
-        pixelMiddle.setColorAndTurnOn(new Color(128, 0, 0));
-        pixelRight.setColorAndTurnOn(Color.BLACK);
+        leftLinePixel.setColorAndTurnOn(Color.BLACK);
+        middleLinePixel.setColorAndTurnOn(new Color(128, 0, 0));
+        rightLinePixel.setColorAndTurnOn(Color.BLACK);
     }
 
     /**
      * Runs when the infrared receiver callback is triggered
      */
     @Override
-    public void onIRReceiverEvent(String command) {
-        //TODO check receiver codes
-        if (command.equals("000000000000")) return;
+    public void onIRReceiverEvent(int receiverCode) {
+        irPixel.setColorAndTurnOn(new Color(100, 100, 100));
 
-        if (command.equals("001010010000")) {
-            // Button: Mute sound
-            gripper.open();
-        } else if (command.equals("101010010000")) {
-            // Button: Power
-            engine.brake();
-            overrideLineSensors();
-        } else if (command.equals("001100010000")) {
-            // Button: Enter
-            ultrasonicFront.enable();
-            ultrasonicPixel.setColorAndTurnOn(new Color(0, 128, 0));
-            gripper.open();
-        } else if (command.equals("010010010000")) {
-            // Button: Vol+ >
-            engine.turn90(false);
-            overrideLineSensors();
-        } else if (command.equals("110010010000")) {
-            // Button: < Vol-
-            engine.turn90(true);
-            overrideLineSensors();
-        } else if (command.equals("100010010000")) {
-            // Button: Ch-
-            engine.drive(-25);
-            overrideLineSensors();
-        } else if (command.equals("000010010000")) {
-            // Button: Ch+
+        if (receiverCode == 12) {
+            // Button: Enter (001100010000)
+            enableUltrasonic();
+        } else if (receiverCode == 16) {
+            // Button: Ch+ (000010010000)
             engine.drive(25);
             overrideLineSensors();
+        } else if (receiverCode == 17) {
+            // Button: Ch- (100010010000)
+            engine.drive(-25);
+            overrideLineSensors();
+        } else if (receiverCode == 18) {
+            // Button: Vol+ > (010010010000)
+            engine.turn90(false);
+            overrideLineSensors();
+        } else if (receiverCode == 19) {
+            // Button: < Vol- (110010010000)
+            engine.turn90(true);
+            overrideLineSensors();
+        } else if (receiverCode == 20) {
+            // Button: Mute sound (001010010000)
+            gripper.open();
+        } else if (receiverCode == 21) {
+            // Button: Power (101010010000)
+            engine.brake();
+            overrideLineSensors();
         } else if (coordinateInputTimer == null) {
-            int code = Integer.parseInt(new StringBuilder(command.substring(0, 7)).reverse().toString(), 2);
+            int numpadNumber = receiverCode + 1;
 
-            if (code == 9) code = -1;
+            // The button for 0 will have numpadNumber 10, but has to be set to 0.
+            if (numpadNumber == 10) receiverCode = 0;
 
-            if (code < 9) {
-                int selectedNumber = code + 1;
-
+            // Check if the code was a numpad number
+            if (receiverCode < 10) {
                 if (Arrays.equals(NavigationManager.getDestination(), new Integer[]{null, null})) {
-                    NavigationManager.setX(selectedNumber);
-                    locationPixel.setColorAndTurnOn(new Color(128, 80, 0));
+                    // Set X-coordinate
+                    NavigationManager.setX(numpadNumber);
+                    locationPixel.setColorAndTurnOn(new Color(128, 123, 0));
                     coordinateInputTimer = new Timer(500);
                     coordinateInputTimer.mark();
                 } else if (NavigationManager.getDestination()[1] == null) {
-                    NavigationManager.setY(selectedNumber);
+                    // Set Y-coordinate
+                    NavigationManager.setY(numpadNumber);
                     locationPixel.setColorAndTurnOn(Color.BLACK);
                     lineSensors.enable();
+                    enableUltrasonic();
                 }
             }
         }
-        irPixel.setColorAndTurnOn(new Color(100, 100, 100));
     }
 
     @Override
@@ -203,9 +205,9 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     @Override
     public void onBluetoothEvent(int data) {
         if (data == 48) {
-            ledTemp.turnOff();
+            tempBluetoothLED.turnOff();
         } else if (data == 49) {
-            ledTemp.turnOn();
+            tempBluetoothLED.turnOn();
         }
 
     }
@@ -219,8 +221,14 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
         lineSensors.disable();
         NavigationManager.resetDestination();
         locationPixel.setColorAndTurnOn(new Color(128, 0, 0));
-        pixelLeft.setColorAndTurnOn(Color.BLACK);
-        pixelMiddle.setColorAndTurnOn(Color.BLACK);
-        pixelRight.setColorAndTurnOn(Color.BLACK);
+        leftLinePixel.setColorAndTurnOn(Color.BLACK);
+        middleLinePixel.setColorAndTurnOn(Color.BLACK);
+        rightLinePixel.setColorAndTurnOn(Color.BLACK);
+    }
+
+    private void enableUltrasonic() {
+        ultrasonicFront.enable();
+        ultrasonicPixel.setColorAndTurnOn(new Color(0, 128, 0));
+        gripper.open();
     }
 }

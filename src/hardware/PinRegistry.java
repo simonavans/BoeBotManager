@@ -11,9 +11,10 @@ import java.util.ArrayList;
 public class PinRegistry {
     private static ArrayList<Integer> gpioPins = new ArrayList<>();
     private static ArrayList<Integer> adcPins = new ArrayList<>();
+    private static ArrayList<Integer> neoPixelPins = new ArrayList<>();
 
+    //TODO? handle thrown exceptions
     public static void registerPins(int[] pinNumbers, String[] pinModes) {
-
         if (pinNumbers.length != pinModes.length) {
             throw new IllegalArgumentException(
                     "Parameter pinNumbers must have the same amount of elements as pinModes. " +
@@ -40,7 +41,6 @@ public class PinRegistry {
             // Check GPio pins
             if (pinMode.equalsIgnoreCase("input")) {
                 if (gpioPins.contains(pinNumber)) {
-                    // TODO? handle exception
                     throw new IllegalArgumentException(
                             "Pin number " + pinNumber + " is already occupied"
                     );
@@ -49,32 +49,30 @@ public class PinRegistry {
                 BoeBot.setMode(pinNumber, PinMode.Input);
             } else if (pinMode.equalsIgnoreCase("output")) {
                 if (gpioPins.contains(pinNumber)) {
-                    // TODO? handle exception
                     throw new IllegalArgumentException(
                             "Pin number " + pinNumber + " is already occupied"
                     );
                 }
                 gpioPins.add(pinNumber);
                 BoeBot.setMode(pinNumber, PinMode.Output);
-            } else if (pinMode.equalsIgnoreCase("pwm")) {
-                if (gpioPins.contains(pinNumber)) {
-                    // TODO? handle exception
-                    throw new IllegalArgumentException(
-                            "Pin number " + pinNumber + " is already occupied"
-                    );
-                }
-                gpioPins.add(pinNumber);
-                BoeBot.setMode(pinNumber, PinMode.PWM);
             }
             // Check ADC pins
             else if (pinMode.equalsIgnoreCase("adc")) {
                 if (adcPins.contains(pinNumber)) {
-                    // TODO? handle exception
                     throw new IllegalArgumentException(
                             "Pin number " + pinNumber + " is already occupied"
                     );
                 }
                 adcPins.add(pinNumber);
+            }
+            // Check neopixel pins
+            else if (pinMode.equalsIgnoreCase("neopixel")) {
+                if (neoPixelPins.contains(pinNumber)) {
+                    throw new IllegalArgumentException(
+                            "Pin number " + pinNumber + " is already occupied"
+                    );
+                }
+                neoPixelPins.add(pinNumber);
             } else {
                 throw new IllegalArgumentException(
                         "Invalid pin mode: " + pinMode

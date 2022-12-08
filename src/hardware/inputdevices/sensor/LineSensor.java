@@ -1,7 +1,6 @@
 package hardware.inputdevices.sensor;
 
 import TI.BoeBot;
-import application.RobotMain;
 import hardware.PinRegistry;
 import link.Updatable;
 

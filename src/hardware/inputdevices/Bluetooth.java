@@ -22,7 +22,6 @@ public class Bluetooth implements Updatable {
     public void update() {
         if (serial.available() > 0) {
             int data = serial.readByte();
-            System.out.println(data);
             callback.onBluetoothEvent(data);
         }
     }

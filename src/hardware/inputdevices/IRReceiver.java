@@ -1,14 +1,9 @@
 package hardware.inputdevices;
 
 import TI.BoeBot;
-import TI.PinMode;
 import application.RobotMain;
 import hardware.PinRegistry;
-import hardware.outputdevices.Engine;
-import hardware.outputdevices.Gripper;
 import link.Updatable;
-
-import java.util.Arrays;
 
 /**
  * Class for the infrared sensor/receiver that picks up signals
@@ -17,7 +12,6 @@ import java.util.Arrays;
 public class IRReceiver implements Updatable {
     private final int pinNumber;
     private final RobotMain callback;
-    private String command;
     private boolean receivedSignal;
 
     public IRReceiver(int pinNumber, RobotMain callback) {
@@ -32,20 +26,21 @@ public class IRReceiver implements Updatable {
         if (pulseLen > 2000) {
             receivedSignal = true;
 
-            int[] button = new int[12];
+            String pulseCode = "";
             for (int i = 0; i < 12; i++) {
                 if (BoeBot.pulseIn(pinNumber, false, 20000) < 800) {
-                    button[i] = 0;
+                    pulseCode += "0";
                 } else {
-                    button[i] = 1;
+                    pulseCode += "1";
                 }
             }
 
-            command = Arrays.toString(button).replace(",", "");
-            command = command.replace("[", "").replace("]", "");
-            command = command.replace(" ", "");
+            int deviceID = Integer.parseInt(new StringBuilder(pulseCode.substring(7)).reverse().toString(), 2);
+            int receiverCode = Integer.parseInt(new StringBuilder(pulseCode.substring(0, 7)).reverse().toString(), 2);
 
-            callback.onIRReceiverEvent(command);
+            if (deviceID != 1) return;
+
+            callback.onIRReceiverEvent(receiverCode);
         } else if (receivedSignal) {
             callback.onStopReceiving();
             receivedSignal = false;
