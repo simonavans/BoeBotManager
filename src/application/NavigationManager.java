@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class NavigationManager {
     private static Integer[] destination = new Integer[]{null, null};
-    private static int[] location = new int[]{0, 0};
+    private static int[] location = new int[]{-1, 0};
     private static String direction = "East";
 
     public static String nextCommandAndUpdate() {
@@ -37,7 +37,7 @@ public class NavigationManager {
     }
 
     public static void resetDestination() {
-        location = new int[]{0, 0};
+        location = new int[]{-1, 0};
         destination = new Integer[]{null, null};
         direction = "East";
     }

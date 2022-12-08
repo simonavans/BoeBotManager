@@ -87,6 +87,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             engine.turn90(true);
         } else if (command.equals("brake")) {
             engine.brake();
+            overrideLineSensors();
         }
         pixelLeft.setColorAndTurnOn(new Color(128, 0, 0));
         pixelMiddle.setColorAndTurnOn(new Color(128, 0, 0));
