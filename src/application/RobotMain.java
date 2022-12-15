@@ -67,6 +67,9 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
         updatables.add(lineSensors);
         updatables.add(engine);
         updatables.add(bluetoothReceiver);
+        updatables.add(leftLinePixel);
+        updatables.add(middleLinePixel);
+        updatables.add(rightLinePixel);
     }
 
     /**
