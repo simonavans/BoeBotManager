@@ -2,6 +2,7 @@ package hardware.outputdevices.led;
 
 import TI.BoeBot;
 import TI.Timer;
+import hardware.outputdevices.Engine;
 import link.Updatable;
 
 import java.awt.*;
@@ -18,6 +19,8 @@ public class NeoPixel implements Updatable, LED {
     private boolean blinkState = false;
     private boolean blinkMode = false;
     private int blinkMilliseconds = 0;
+    protected static boolean driveBack = true;
+    protected static Timer Blinker = new Timer(500);
 
     public NeoPixel(int ledNumber, Color color) {
         if (ledNumber < 0 || ledNumber > 6) {
@@ -99,8 +102,39 @@ public class NeoPixel implements Updatable, LED {
         blinkMode = true;
         blinkMilliseconds = milliseconds;
 
+
         if (color.getRGB() == 0) {
             System.out.println("Warning: neopixel on LED number "+ledNumber+" is blinking, but its color is black!");
         }
     }
+    public static void rightBlinker(){
+        BoeBot.rgbSet(0, Color.BLACK);
+        BoeBot.rgbShow();
+        if (Blinker.timeout()){
+            BoeBot.rgbSet(0, Color.ORANGE);
+            BoeBot.rgbShow();
+        }
+
+    }
+
+    public static void leftBlinker(){
+        BoeBot.rgbSet(5, Color.BLACK);
+        BoeBot.rgbShow();
+        if (Blinker.timeout()){
+            BoeBot.rgbSet(5, Color.ORANGE);
+            BoeBot.rgbShow();
+        }
+
+    }
+    public static void backLights(){
+        BoeBot.rgbSet(0, Color.WHITE);
+        BoeBot.rgbSet(5, Color.WHITE);
+        BoeBot.rgbShow();
+    }
+    public static void brakeLights(){
+        BoeBot.rgbSet(0, Color.RED);
+        BoeBot.rgbSet(5, Color.RED);
+        BoeBot.rgbShow();
+    }
+
 }
