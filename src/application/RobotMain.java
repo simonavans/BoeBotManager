@@ -131,6 +131,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     @Override
     public void onIRReceiverEvent(int receiverCode) {
         irPixel.setColorAndTurnOn(new Color(100, 100, 100));
+        Timer overrideTimer = new Timer(100);
 
         if (receiverCode == 12) {
             // Button: Enter (001100010000)
@@ -139,10 +140,19 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             // Button: Ch+ (000010010000)
             engine.drive(25);
             overrideLineSensors();
+            overrideTimer.mark();
+            if (overrideTimer.timeout()) {
+                lineSensors.enable();
+            }
         } else if (receiverCode == 17) {
             // Button: Ch- (100010010000)
             engine.drive(-25);
             overrideLineSensors();
+            overrideLineSensors();
+            overrideTimer.mark();
+            if (overrideTimer.timeout()) {
+                lineSensors.enable();
+            }
         } else if (receiverCode == 18) {
             // Button: Vol+ > (010010010000)
             engine.turn90(false);
