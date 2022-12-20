@@ -3,130 +3,40 @@ package hardware;
 public class Settings {
 
     /**
-     * @author Timo
+     * @author Timo and Simon
      */
     //Variables
-    private int speed;
-    private int stopspeed;
-    private int treshold;
-    private int ceiling;
-    private int gripperPin;
-    private int leftWheelPin;
-    private int rightWheelPin;
-    private int ultraSonicInputPin;
-    private int ultraSonicOutputPin;
-    private int irReceiverPin;
-    private int[] lineSensorPins;
-    private int bautrate;
+    public final int ULTRASONIC_THRESHOLD;
+    public final int ENGINE_NORMAL_SPEED;
+    public final int ENGINE_STOP_SPEED;
+    public final int LINE_SENSOR_THRESHOLD;
+    public final int LINE_SENSOR_CEILING;
+    public final int BLUETOOTH_BAUDRATE;
+    public final int GRIPPER_OPEN_FREQUENCY;
+    public final int GRIPPER_CLOSE_FREQUENCY;
+    public final int ULTRASONIC_INPUT_PIN;
+    public final int ULTRASONIC_OUTPUT_PIN;
+    public final int LEFT_WHEEL_PIN;
+    public final int RIGHT_WHEEL_PIN;
+    public final int GRIPPER_PIN;
+    public final int IR_RECEIVER_PIN;
+    public final int[] LINE_SENSOR_ADC_PINS;
 
-    public Settings(int speed, int stopspeed, int treshold, int ceiling, int gripperPin, int leftWheelPin, int rightWheelPin, int ultraSonicInputPin, int ultraSonicOutputPin, int irReceiverPin, int[] lineSensorPins, int bautrate) {
-        this.speed = speed;
-        this.stopspeed = stopspeed;
-        this.treshold = treshold;
-        this.ceiling = ceiling;
-        this.gripperPin = gripperPin;
-        this.leftWheelPin = leftWheelPin;
-        this.rightWheelPin = rightWheelPin;
-        this.ultraSonicInputPin = ultraSonicInputPin;
-        this.ultraSonicOutputPin = ultraSonicOutputPin;
-        this.irReceiverPin = irReceiverPin;
-        this.lineSensorPins = lineSensorPins;
-        this.bautrate = bautrate;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
-
-    public int getStopspeed() {
-        return stopspeed;
-    }
-
-    public void setStopspeed(int stopspeed) {
-        this.stopspeed = stopspeed;
-    }
-
-    public int getTreshold() {
-        return treshold;
-    }
-
-    public void setTreshold(int treshold) {
-        this.treshold = treshold;
-    }
-
-    public int getCeiling() {
-        return ceiling;
-    }
-
-    public void setCeiling(int ceiling) {
-        this.ceiling = ceiling;
-    }
-
-    public int getGripperPin() {
-        return gripperPin;
-    }
-
-    public void setGripperPin(int gripperPin) {
-        this.gripperPin = gripperPin;
-    }
-
-    public int getLeftWheelPin() {
-        return leftWheelPin;
-    }
-
-    public void setLeftWheelPin(int leftWheelPin) {
-        this.leftWheelPin = leftWheelPin;
-    }
-
-    public int getRightWheelPin() {
-        return rightWheelPin;
-    }
-
-    public void setRightWheelPin(int rightWheelPin) {
-        this.rightWheelPin = rightWheelPin;
-    }
-
-    public int getUltraSonicInputPin() {
-        return ultraSonicInputPin;
-    }
-
-    public void setUltraSonicInputPin(int ultraSonicInputPin) {
-        this.ultraSonicInputPin = ultraSonicInputPin;
-    }
-
-    public int getUltraSonicOutputPin() {
-        return ultraSonicOutputPin;
-    }
-
-    public void setUltraSonicOutputPin(int ultraSonicOutputPin) {
-        this.ultraSonicOutputPin = ultraSonicOutputPin;
-    }
-
-    public int getIrReceiverPin() {
-        return irReceiverPin;
-    }
-
-    public void setIrReceiverPin(int irReceiverPin) {
-        this.irReceiverPin = irReceiverPin;
-    }
-
-    public int[] getLineSensorPins() {
-        return lineSensorPins;
-    }
-
-    public void setLineSensorPins(int[] lineSensorPins) {
-        this.lineSensorPins = lineSensorPins;
-    }
-
-    public int getBautrate() {
-        return bautrate;
-    }
-
-    public void setBautrate(int bautrate) {
-        this.bautrate = bautrate;
+    public Settings(int ULTRASONIC_THRESHOLD, int ENGINE_NORMAL_SPEED, int ENGINE_STOP_SPEED, int LINE_SENSOR_THRESHOLD, int LINE_SENSOR_CEILING, int BLUETOOTH_BAUDRATE, int GRIPPER_OPEN_FREQUENCY, int GRIPPER_CLOSE_FREQUENCY, int ULTRASONIC_INPUT_PIN, int ULTRASONIC_OUTPUT_PIN, int LEFT_WHEEL_PIN, int RIGHT_WHEEL_PIN, int GRIPPER_PIN, int IR_RECEIVER_PIN, int[] LINE_SENSOR_ADC_PINS) {
+        this.ULTRASONIC_THRESHOLD = ULTRASONIC_THRESHOLD;
+        this.ENGINE_NORMAL_SPEED = ENGINE_NORMAL_SPEED;
+        this.ENGINE_STOP_SPEED = ENGINE_STOP_SPEED;
+        this.LINE_SENSOR_THRESHOLD = LINE_SENSOR_THRESHOLD;
+        this.LINE_SENSOR_CEILING = LINE_SENSOR_CEILING;
+        this.BLUETOOTH_BAUDRATE = BLUETOOTH_BAUDRATE;
+        this.GRIPPER_OPEN_FREQUENCY = GRIPPER_OPEN_FREQUENCY;
+        this.GRIPPER_CLOSE_FREQUENCY = GRIPPER_CLOSE_FREQUENCY;
+        this.ULTRASONIC_INPUT_PIN = ULTRASONIC_INPUT_PIN;
+        this.ULTRASONIC_OUTPUT_PIN = ULTRASONIC_OUTPUT_PIN;
+        this.LEFT_WHEEL_PIN = LEFT_WHEEL_PIN;
+        this.RIGHT_WHEEL_PIN = RIGHT_WHEEL_PIN;
+        this.GRIPPER_PIN = GRIPPER_PIN;
+        this.IR_RECEIVER_PIN = IR_RECEIVER_PIN;
+        this.LINE_SENSOR_ADC_PINS = LINE_SENSOR_ADC_PINS;
     }
 }

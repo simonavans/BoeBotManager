@@ -2,6 +2,7 @@ package application;
 
 import TI.BoeBot;
 import TI.Timer;
+import hardware.Settings;
 import hardware.inputdevices.Bluetooth;
 import hardware.inputdevices.Button;
 import hardware.inputdevices.IRReceiver;
@@ -24,15 +25,21 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     // ArrayList containing all hardware
     private static final ArrayList<Updatable> updatables = new ArrayList<>();
 
+    // Settings of the current BoeBot setup. May differ between BoeBots.
+    // TODO not yet all settings are in use. Fix this.
+    private final Settings settings = new Settings(3, Integer.MAX_VALUE, 1500, 1400, 1800,
+            115200, 2200, 1250, 14, 1, 13,
+            12, 0, 1, new int[]{0, 1, 2});
+
     // Input updatables, they check for input from surroundings
-    private final UltrasonicSensor ultrasonicFront = new UltrasonicSensor(14, 1, this);
-    private final IRReceiver irReceiver = new IRReceiver(15, this);
-    private final LineSensors lineSensors = new LineSensors(new int[]{0, 1, 2}, this);
-    private final Bluetooth bluetoothReceiver = new Bluetooth(this, 115200);
+    private final UltrasonicSensor ultrasonicFront = new UltrasonicSensor(settings.ULTRASONIC_INPUT_PIN, settings.ULTRASONIC_OUTPUT_PIN, this);
+    private final IRReceiver irReceiver = new IRReceiver(settings.IR_RECEIVER_PIN, this);
+    private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, this);
+    private final Bluetooth bluetoothReceiver = new Bluetooth(this, settings.BLUETOOTH_BAUDRATE);
 
     // Output updatables, they alter the state of the BoeBot and/or the environment
-    private final Engine engine = new Engine(13, 12);
-    private final Gripper gripper = new Gripper(0);
+    private final Engine engine = new Engine(settings.LEFT_WHEEL_PIN, settings.RIGHT_WHEEL_PIN);
+    private final Gripper gripper = new Gripper(settings.GRIPPER_PIN);
     private final NeoPixel irPixel = new NeoPixel(1, Color.BLACK);
     private final NeoPixel locationPixel = new NeoPixel(0, new Color(128, 0, 0));
     private final NeoPixel ultrasonicPixel = new NeoPixel(2, new Color(0, 128, 0));
