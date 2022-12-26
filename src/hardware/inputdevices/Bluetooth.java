@@ -13,7 +13,7 @@ public class Bluetooth implements Updatable {
     private SerialConnection serial;
     private final RobotMain callback;
 
-    public Bluetooth(RobotMain callback, int baudrate) {
+    public Bluetooth(int baudrate, RobotMain callback) {
         this.serial = new SerialConnection(baudrate);
         this.callback = callback;
     }

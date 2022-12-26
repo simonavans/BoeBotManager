@@ -3,17 +3,21 @@ package hardware;
 import TI.BoeBot;
 import TI.PinMode;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Manages all pins in use by the hardware
  */
 public class PinRegistry {
-    private static ArrayList<Integer> gpioPins = new ArrayList<>();
-    private static ArrayList<Integer> adcPins = new ArrayList<>();
-    private static ArrayList<Integer> neoPixelPins = new ArrayList<>();
+    private static HashMap<Integer, String> pins = new HashMap<>();
 
     //TODO? handle thrown exceptions
+    /**
+     * Registers pins to use by hardware on the BoeBot.
+     * @param pinNumbers an array of pin numbers to register.
+     * @param pinModes an array of pin modes in the same order as the
+     *                 pin numbers in the pinNumbers parameter
+     */
     public static void registerPins(int[] pinNumbers, String[] pinModes) {
         if (pinNumbers.length != pinModes.length) {
             throw new IllegalArgumentException(
@@ -22,62 +26,70 @@ public class PinRegistry {
                             ", pinModes length was: " + pinModes.length
             );
         }
-
         if (pinNumbers.length == 0) return;
 
         int pinNumber;
         String pinMode;
 
-        for (int i=0; i<pinNumbers.length; i++) {
+        for (int i = 0; i < pinNumbers.length; i++) {
             pinNumber = pinNumbers[i];
             pinMode = pinModes[i];
 
-            if (pinNumber < 0 || pinNumber > 15) {
-                throw new IllegalArgumentException(
-                        "Invalid pin number. Pin number must be between 0 and 15 (inclusive) but was: " + pinNumber
-                );
-            }
+            checkPin(pinNumber, pinMode);
+            // Pins are all correct by this point
+            pins.put(pinNumber, pinMode);
 
-            // Check GPio pins
+            // Check GPio input pins
             if (pinMode.equalsIgnoreCase("input")) {
-                if (gpioPins.contains(pinNumber)) {
-                    throw new IllegalArgumentException(
-                            "Pin number " + pinNumber + " is already occupied"
-                    );
-                }
-                gpioPins.add(pinNumber);
                 BoeBot.setMode(pinNumber, PinMode.Input);
-            } else if (pinMode.equalsIgnoreCase("output")) {
-                if (gpioPins.contains(pinNumber)) {
-                    throw new IllegalArgumentException(
-                            "Pin number " + pinNumber + " is already occupied"
-                    );
-                }
-                gpioPins.add(pinNumber);
+            }
+            // Check GPio output pins
+            else if (pinMode.equalsIgnoreCase("output")) {
                 BoeBot.setMode(pinNumber, PinMode.Output);
             }
-            // Check ADC pins
-            else if (pinMode.equalsIgnoreCase("adc")) {
-                if (adcPins.contains(pinNumber)) {
+        }
+    }
+
+    /**
+     * Checks pins for any duplicate pin numbers and if the pin number exists
+     * on the BoeBot.
+     * @param pinNumber the pin number to check.
+     * @param pinMode the pin mode to check.
+     */
+    private static void checkPin(int pinNumber, String pinMode) {
+        switch(pinMode) {
+            case "input":
+            case "output":
+                if (pinNumber < 0 || pinNumber > 15) {
                     throw new IllegalArgumentException(
-                            "Pin number " + pinNumber + " is already occupied"
+                            "Invalid pin number. Input and output pin numbers must be between 0 and 15 (inclusive) but was: " + pinNumber
                     );
                 }
-                adcPins.add(pinNumber);
-            }
-            // Check neopixel pins
-            else if (pinMode.equalsIgnoreCase("neopixel")) {
-                if (neoPixelPins.contains(pinNumber)) {
+                break;
+            case "adc":
+                if (pinNumber < 0 || pinNumber > 3) {
                     throw new IllegalArgumentException(
-                            "Pin number " + pinNumber + " is already occupied"
+                            "Invalid pin number. ADC pin numbers must be between 0 and 3 (inclusive) but was: " + pinNumber
                     );
                 }
-                neoPixelPins.add(pinNumber);
-            } else {
+                break;
+            case "neopixel":
+                if (pinNumber < 0 || pinNumber > 5) {
+                    throw new IllegalArgumentException(
+                            "Invalid LED number. Neopixel LED numbers must be between 0 and 5 (inclusive) but was: " + pinNumber
+                    );
+                }
+                break;
+            default:
                 throw new IllegalArgumentException(
                         "Invalid pin mode: " + pinMode
                 );
-            }
+        }
+
+        if (pins.containsKey(pinNumber) && pins.get(pinNumber).equals(pinMode)) {
+            throw new IllegalArgumentException(
+                    "Pin number " + pinNumber + " is already occupied with mode " + pinMode
+            );
         }
     }
 }

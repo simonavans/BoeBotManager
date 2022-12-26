@@ -17,14 +17,15 @@ public class UltrasonicSensor implements Updatable, Sensor<Integer> {
     private final int outputPinNumber;
     private final RobotMain callback;
     private int measuredDistance;
-    private int threshold = 3;
+    private int threshold;
     private boolean enabled = true;
     private Timer clock = new Timer(100);
 
-    public UltrasonicSensor(int inputPinNumber, int outputPinNumber, RobotMain callback) {
+    public UltrasonicSensor(int inputPinNumber, int outputPinNumber, int sensorThreshold, RobotMain callback) {
         PinRegistry.registerPins(new int[]{inputPinNumber, outputPinNumber}, new String[]{"input", "output"});
         this.inputPinNumber = inputPinNumber;
         this.outputPinNumber = outputPinNumber;
+        this.threshold = sensorThreshold;
         this.callback = callback;
         clock.mark();
     }

@@ -5,5 +5,4 @@ package link.callbacks;
  */
 public interface IRReceiverCallback {
     void onIRReceiverEvent(int receiverCode);
-    void onStopReceiving();
 }

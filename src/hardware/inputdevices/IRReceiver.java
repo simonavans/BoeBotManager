@@ -3,7 +3,10 @@ package hardware.inputdevices;
 import TI.BoeBot;
 import application.RobotMain;
 import hardware.PinRegistry;
+import hardware.outputdevices.led.NeoPixel;
 import link.Updatable;
+
+import java.awt.*;
 
 /**
  * Class for the infrared sensor/receiver that picks up signals
@@ -11,12 +14,14 @@ import link.Updatable;
  */
 public class IRReceiver implements Updatable {
     private final int pinNumber;
+    private final NeoPixel irSignalNeoPixel;
     private final RobotMain callback;
     private boolean receivedSignal;
 
-    public IRReceiver(int pinNumber, RobotMain callback) {
+    public IRReceiver(int pinNumber, NeoPixel irSignalNeoPixel, RobotMain callback) {
         PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"input"});
         this.pinNumber = pinNumber;
+        this.irSignalNeoPixel = irSignalNeoPixel;
         this.callback = callback;
     }
 
@@ -40,9 +45,10 @@ public class IRReceiver implements Updatable {
 
             if (deviceID != 1) return;
 
+            irSignalNeoPixel.setColorAndTurnOn(new Color(100, 100, 100));
             callback.onIRReceiverEvent(receiverCode);
         } else if (receivedSignal) {
-            callback.onStopReceiving();
+            irSignalNeoPixel.turnOff();
             receivedSignal = false;
         }
     }

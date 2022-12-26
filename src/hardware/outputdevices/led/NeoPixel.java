@@ -2,6 +2,7 @@ package hardware.outputdevices.led;
 
 import TI.BoeBot;
 import TI.Timer;
+import hardware.PinRegistry;
 
 import java.awt.*;
 
@@ -18,18 +19,18 @@ public class NeoPixel implements LED {
     private boolean blinkState = false;
 
     public NeoPixel(int ledNumber, Color color) {
-        if (ledNumber < 0 || ledNumber > 6) {
-            throw new IllegalArgumentException(
-                    "Parameter ledNumber in NeoPixel was not between 0 and 6 (inclusive) but was:" + ledNumber
-            );
-        }
+        PinRegistry.registerPins(new int[]{ledNumber}, new String[]{"neopixel"});
         this.ledNumber = ledNumber;
         this.color = color;
 
-        if (color != null) {
-            BoeBot.rgbSet(ledNumber, color);
-            BoeBot.rgbShow();
-        }
+        BoeBot.rgbSet(ledNumber, color);
+        BoeBot.rgbShow();
+    }
+
+    public NeoPixel(int ledNumber) {
+        PinRegistry.registerPins(new int[]{ledNumber}, new String[]{"neopixel"});
+        this.ledNumber = ledNumber;
+        this.color = new Color(0);
     }
 
     public Color getColor() {

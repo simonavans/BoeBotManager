@@ -11,21 +11,23 @@ import hardware.PinRegistry;
  */
 public class Gripper {
     private Servo gripper;
+    int openFrequency;
+    int closeFrequency;
     private boolean isOpen;
 
-    public Gripper(int pinNumber) {
+    public Gripper(int pinNumber, int openFrequency, int closeFrequency) {
         PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"output"});
         gripper = new Servo(pinNumber);
         open();
     }
 
     public void open() {
-        gripper.update(2200);
+        gripper.update(openFrequency);
         isOpen = true;
     }
 
     public void close() {
-        gripper.update(1250);
+        gripper.update(closeFrequency);
         isOpen = false;
     }
 }
