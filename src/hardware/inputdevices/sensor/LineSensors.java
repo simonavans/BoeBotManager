@@ -133,6 +133,29 @@ public class LineSensors implements Updatable, LineSensorCallback {
         }
     }
 
+    public boolean lineSensorIRReceiver(){
+        // Any Timer variables that have to do with a crossroad must be null.
+        // Otherwise, the line sensors would cause interference while passing the crossroad.
+        if (afterCrossroadTimer == null && beforeCrossroadTimer == null && enabled) {
+            sensorLeft.update();
+            sensorMiddle.update();
+            sensorRight.update();
+
+            // If a crossroad is detected, the bot cannot yet turn since the wheels don't align
+            // with the crossroad yet. Therefore, start a Timer.
+            if (Arrays.equals(detectionStates, new boolean[]{true, true, true})) {
+                detectedCrossroad = true;
+                beforeCrossroadTimer = new Timer(700);
+                beforeCrossroadTimer.mark();
+                // During this process, the bot must be driving straight to prevent turning too much.
+                callback.onDriveStraight();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void enable() {
         enabled = true;
     }

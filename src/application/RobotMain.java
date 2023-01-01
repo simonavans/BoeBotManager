@@ -139,28 +139,56 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
         } else if (receiverCode == 16) {
             // Button: Ch+ (000010010000)
             engine.drive(25);
-            overrideLineSensors();
-            overrideTimer.mark();
-            if (overrideTimer.timeout()) {
-                lineSensors.enable();
+            // overrideLineSensors();
+            // overrideTimer.mark();
+            // if (overrideTimer.timeout()) {
+            //     lineSensors.enable();
+            // }
+            if(lineSensors.lineSensorIRReceiver()){
+                engine.brake();
             }
         } else if (receiverCode == 17) {
             // Button: Ch- (100010010000)
             engine.drive(-25);
-            overrideLineSensors();
-            overrideLineSensors();
-            overrideTimer.mark();
-            if (overrideTimer.timeout()) {
-                lineSensors.enable();
+            // overrideLineSensors();
+            // overrideLineSensors();
+            // overrideTimer.mark();
+            // if (overrideTimer.timeout()) {
+            //     lineSensors.enable();
+            // }
+            if(lineSensors.lineSensorIRReceiver()){
+                engine.brake();
             }
         } else if (receiverCode == 18) {
             // Button: Vol+ > (010010010000)
-            engine.turn90(false);
-            overrideLineSensors();
+            // engine.turn90(false);
+            // overrideLineSensors();
+            if(lineSensors.lineSensorIRReceiver()){
+                engine.turn90(false);
+            } else {
+                overrideTimer.mark();
+                engine.drive(25);
+                if(lineSensors.lineSensorIRReceiver()){
+                    engine.turn90(false);
+                } else if (overrideTimer.timeout()) {
+                    engine.brake();
+                }
+            }
         } else if (receiverCode == 19) {
             // Button: < Vol- (110010010000)
-            engine.turn90(true);
-            overrideLineSensors();
+            // engine.turn90(true);
+            // overrideLineSensors();
+            if(lineSensors.lineSensorIRReceiver()){
+                engine.turn90(true);
+            } else {
+                overrideTimer.mark();
+                engine.drive(25);
+                if(lineSensors.lineSensorIRReceiver()){
+                    engine.turn90(true);
+                } else if (overrideTimer.timeout()) {
+                    engine.brake();
+                }
+            }
         } else if (receiverCode == 20) {
             // Button: Mute sound (001010010000)
             gripper.open();
