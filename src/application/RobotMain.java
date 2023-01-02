@@ -140,11 +140,11 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             // Button: Ch+ (000010010000)
             engine.drive(25);
             // overrideLineSensors();
-            // overrideTimer.mark();
+            overrideTimer.mark();
             // if (overrideTimer.timeout()) {
             //     lineSensors.enable();
             // }
-            if(lineSensors.lineSensorIRReceiver()){
+            if(lineSensors.lineSensorIRReceiver() || overrideTimer.timeout()){
                 engine.brake();
             }
         } else if (receiverCode == 17) {
@@ -152,11 +152,11 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             engine.drive(-25);
             // overrideLineSensors();
             // overrideLineSensors();
-            // overrideTimer.mark();
+            overrideTimer.mark();
             // if (overrideTimer.timeout()) {
             //     lineSensors.enable();
             // }
-            if(lineSensors.lineSensorIRReceiver()){
+            if(lineSensors.lineSensorIRReceiver() || overrideTimer.timeout()){
                 engine.brake();
             }
         } else if (receiverCode == 18) {
