@@ -17,7 +17,7 @@ public class Buzzer implements Updatable {
     private boolean beepState;
     private int beepDuration = 0;
 
-    public Buzzer(byte pinNumber) {
+    public Buzzer(int pinNumber) {
         PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"output"});
 
         // Constructor of PWM sets pinNumber's PinMode to PWM instead of Output

@@ -8,6 +8,7 @@ import hardware.inputdevices.IRReceiver;
 import hardware.inputdevices.sensor.LineSensors;
 import hardware.inputdevices.sensor.Sensor;
 import hardware.inputdevices.sensor.UltrasonicSensor;
+import hardware.outputdevices.Buzzer;
 import hardware.outputdevices.Engine;
 import hardware.outputdevices.Gripper;
 import hardware.outputdevices.led.BasicLED;
@@ -41,6 +42,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     private final NeoPixel middleLinePixel = new NeoPixel(4, Color.BLACK);
     private final NeoPixel rightLinePixel = new NeoPixel(3, Color.BLACK);
     private final BasicLED tempBluetoothLED = new BasicLED(2); //TODO Temp LED for demo, remove later
+    private final Buzzer buzzer = new Buzzer(Integer.MAX_VALUE);
 
     // Used as a cooldown for inputting coordinates, to prevent inputting the same number twice
     // when the button was only pressed once.
@@ -67,6 +69,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
         updatables.add(lineSensors);
         updatables.add(engine);
         updatables.add(bluetoothReceiver);
+        updatables.add(buzzer);
     }
 
     /**
