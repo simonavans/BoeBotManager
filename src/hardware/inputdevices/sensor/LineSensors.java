@@ -133,7 +133,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
         }
     }
 
-    public boolean lineSensorIRReceiver(){
+    public boolean lineSensorCrossroadDetector(){
         // Any Timer variables that have to do with a crossroad must be null.
         // Otherwise, the line sensors would cause interference while passing the crossroad.
         if (afterCrossroadTimer == null && beforeCrossroadTimer == null && enabled) {

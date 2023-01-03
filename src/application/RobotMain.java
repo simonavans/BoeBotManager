@@ -144,7 +144,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             // if (overrideTimer.timeout()) {
             //     lineSensors.enable();
             // }
-            if(lineSensors.lineSensorIRReceiver() || overrideTimer.timeout()){
+            if(lineSensors.lineSensorCrossroadDetector() || overrideTimer.timeout()){
                 engine.brake();
             }
         } else if (receiverCode == 17) {
@@ -156,19 +156,19 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             // if (overrideTimer.timeout()) {
             //     lineSensors.enable();
             // }
-            if(lineSensors.lineSensorIRReceiver() || overrideTimer.timeout()){
+            if(lineSensors.lineSensorCrossroadDetector() || overrideTimer.timeout()){
                 engine.brake();
             }
         } else if (receiverCode == 18) {
             // Button: Vol+ > (010010010000)
             // engine.turn90(false);
             // overrideLineSensors();
-            if(lineSensors.lineSensorIRReceiver()){
+            if(lineSensors.lineSensorCrossroadDetector()){
                 engine.turn90(false);
             } else {
                 overrideTimer.mark();
                 engine.drive(25);
-                if(lineSensors.lineSensorIRReceiver()){
+                if(lineSensors.lineSensorCrossroadDetector()){
                     engine.turn90(false);
                 } else if (overrideTimer.timeout()) {
                     engine.brake();
@@ -178,12 +178,12 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             // Button: < Vol- (110010010000)
             // engine.turn90(true);
             // overrideLineSensors();
-            if(lineSensors.lineSensorIRReceiver()){
+            if(lineSensors.lineSensorCrossroadDetector()){
                 engine.turn90(true);
             } else {
                 overrideTimer.mark();
                 engine.drive(25);
-                if(lineSensors.lineSensorIRReceiver()){
+                if(lineSensors.lineSensorCrossroadDetector()){
                     engine.turn90(true);
                 } else if (overrideTimer.timeout()) {
                     engine.brake();
@@ -263,7 +263,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             gripper.open();
             overrideTimer2.mark();
             engine.drive(-25);
-            if(lineSensors.lineSensorIRReceiver() || overrideTimer2.timeout()){
+            if(lineSensors.lineSensorCrossroadDetector() || overrideTimer2.timeout()){
                 engine.brake();
             }
         }
