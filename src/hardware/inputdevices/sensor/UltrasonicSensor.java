@@ -17,15 +17,22 @@ public class UltrasonicSensor implements Updatable, Sensor<Integer> {
     private final int outputPinNumber;
     private final RobotMain callback;
     private int measuredDistance;
-    private int threshold;
+    private int grabThreshold;
+    private int unknownObjectThreshold;
     private boolean enabled = true;
     private Timer clock = new Timer(100);
 
-    public UltrasonicSensor(int inputPinNumber, int outputPinNumber, int sensorThreshold, RobotMain callback) {
+    public UltrasonicSensor(int inputPinNumber, int outputPinNumber, int grabThreshold, int unknownObjectThreshold, RobotMain callback) {
         PinRegistry.registerPins(new int[]{inputPinNumber, outputPinNumber}, new String[]{"input", "output"});
+
+        if (grabThreshold > unknownObjectThreshold) {
+            throw new IllegalArgumentException("Grabbing threshold can not be bigger than the unknown object detection threshold");
+        }
+
         this.inputPinNumber = inputPinNumber;
         this.outputPinNumber = outputPinNumber;
-        this.threshold = sensorThreshold;
+        this.grabThreshold = grabThreshold;
+        this.unknownObjectThreshold = unknownObjectThreshold;
         this.callback = callback;
         clock.mark();
     }
@@ -36,10 +43,19 @@ public class UltrasonicSensor implements Updatable, Sensor<Integer> {
 
     @Override
     public void update() {
-        if (isOnOrOverThreshold() && enabled) {
-            callback.onSensorEvent(this);
-            enabled = false;
+        if (enabled) {
+            int currentSensorValue = getSensorValue();
+
+            if (currentSensorValue <= 0) return;
+
+            if (currentSensorValue <= unknownObjectThreshold) {
+                callback.onDetectedUnknownObject();
+            } else if (currentSensorValue <= grabThreshold) {
+                callback.onSensorEvent(this);
+                enabled = false;
+            }
         }
+
     }
 
     /**
@@ -64,13 +80,13 @@ public class UltrasonicSensor implements Updatable, Sensor<Integer> {
     /**
      * Returns true if the distance between the ultrasonic sensor and the
      * object which caused the reverberation is smaller than or equal to
-     * the threshold value, which is considered to be "right in front of it".
-     * @return true if distance is greater than or equal to the threshold value,
-     * false if distance is smaller than the threshold value.
+     * the grabThreshold value, which is considered to be "right in front of it".
+     * @return true if distance is greater than or equal to the grabThreshold value,
+     * false if distance is smaller than the grabThreshold value.
      */
     @Override
     public boolean isOnOrOverThreshold() {
         Integer measuredValue = getSensorValue();
-        return measuredValue > 0 && measuredValue <= threshold;
+        return measuredValue > 0 && measuredValue <= grabThreshold;
     }
 }

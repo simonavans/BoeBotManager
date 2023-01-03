@@ -24,21 +24,21 @@ import java.util.Arrays;
  *
  * @author Team B2
  */
-public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCallback, LineSensorsCallback, BluetoothCallback {
+public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCallback, LineSensorsCallback, BluetoothCallback, UnknownObjectCallback {
     // ArrayList containing all hardware that needs to run constantly
     private static final ArrayList<Updatable> updatables = new ArrayList<>();
 
     // Settings of the current BoeBot setup. May differ between BoeBots.
     // TODO not yet all settings are in use. Fix this.
     private final Settings settings = new Settings(
-            3,
+            3, 200,
             25, 1500, 1497,
             1400, 1800,
             115200, 2200, 1250,
             14, 1, 13, 12, 0, 1, new int[]{0, 1, 2});
 
     // Input updatables, they check for input from surroundings
-    private final UltrasonicSensor ultrasonicFront = new UltrasonicSensor(settings.ULTRASONIC_INPUT_PIN, settings.ULTRASONIC_OUTPUT_PIN, settings.ULTRASONIC_THRESHOLD, this);
+    private final UltrasonicSensor ultrasonicFront = new UltrasonicSensor(settings.ULTRASONIC_INPUT_PIN, settings.ULTRASONIC_OUTPUT_PIN, settings.ULTRASONIC_GRAB_THRESHOLD, settings.ULTRASONIC_UNKNOWN_OBJECT_THRESHOLD, this);
     private final IRReceiver irReceiver = new IRReceiver(settings.IR_RECEIVER_PIN, new NeoPixel(1), this);
     private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, this);
     private final Bluetooth bluetoothReceiver = new Bluetooth(settings.BLUETOOTH_BAUDRATE, this);
@@ -232,6 +232,13 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             gripper.close();
             ultrasonicPixel.setColorAndTurnOn(new Color(128, 0, 0));
         }
+    }
+
+    @Override
+    public void onDetectedUnknownObject() {
+        // buzzer and neopixels go beserk
+        engine.brake();
+        overrideLineSensors();
     }
 
     /**
