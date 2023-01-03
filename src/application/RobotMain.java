@@ -243,7 +243,21 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
      */
     @Override
     public void onBluetoothEvent(int data) {
-
+        switch (data) {
+            case 70:
+                // F: forward
+                break;
+            case 76:
+                // L: turn left
+                break;
+            case 82:
+                // R: turn right
+            case 80:
+                // P: place object
+                break;
+            default:
+                System.out.println("Warning: Unknown bluetooth data: "+data);
+        }
     }
 
     /**
