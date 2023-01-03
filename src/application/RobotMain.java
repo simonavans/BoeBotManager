@@ -251,8 +251,22 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     }
 
     @Override
-    public void onButtonEvent(Button source) {
+    public void onButtonEvent(Button source) {}
 
+    public void putDownItem(){
+        Timer overrideTimer1 = new Timer(5);
+        Timer overrideTimer2 = new Timer(95);
+        overrideTimer1.mark();
+        engine.drive(-25);
+        if(overrideTimer1.timeout()){
+            engine.brake();
+            gripper.open();
+            overrideTimer2.mark();
+            engine.drive(-25);
+            if(lineSensors.lineSensorIRReceiver() || overrideTimer2.timeout()){
+                engine.brake();
+            }
+        }
     }
 
     private void overrideLineSensors() {
