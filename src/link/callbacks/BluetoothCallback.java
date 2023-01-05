@@ -1,5 +1,5 @@
 package link.callbacks;
 
 public interface BluetoothCallback {
-    void onBluetoothEvent(int data);
+    void onBluetoothEvent(String command);
 }

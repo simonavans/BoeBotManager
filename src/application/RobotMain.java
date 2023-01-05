@@ -237,26 +237,30 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
     /**
      * Runs when the bluetooth chip receives a signal. Executes code based
      * on the data parameter.
-     * @param data the data which is transmitted to the BoeBot.
+     * @param command the command which is transmitted to the BoeBot.
      *
-     * @author Simon
+     * @author Simon and Kerr
      */
     @Override
-    public void onBluetoothEvent(int data) {
-        switch (data) {
-            case 70:
-                // F: forward
+    public void onBluetoothEvent(String command) {
+        switch (command) {
+            case "Application: Forward":
+                // forward
                 break;
-            case 76:
-                // L: turn left
+            case "Application: Left":
+                // turn left
                 break;
-            case 82:
-                // R: turn right
-            case 80:
-                // P: place object
+            case "Application: Right":
+                // turn right
+                break;
+            case "Application: Place":
+                // place object
+                break;
+            case "Application: Brake":
+                // Brake
                 break;
             default:
-                System.out.println("Warning: Unknown bluetooth data: "+data);
+                System.out.println("Warning: Unknown bluetooth data: " + command);
         }
     }
 
