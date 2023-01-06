@@ -15,13 +15,15 @@ import java.awt.*;
 public class IRReceiver implements Updatable {
     private final int pinNumber;
     private final NeoPixel irSignalNeoPixel;
+    private final int bitThreshold;
     private final RobotMain callback;
     private boolean receivedSignal;
 
-    public IRReceiver(int pinNumber, NeoPixel irSignalNeoPixel, RobotMain callback) {
+    public IRReceiver(int pinNumber, NeoPixel irSignalNeoPixel, int bitThreshold, RobotMain callback) {
         PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"input"});
         this.pinNumber = pinNumber;
         this.irSignalNeoPixel = irSignalNeoPixel;
+        this.bitThreshold = bitThreshold;
         this.callback = callback;
     }
 
@@ -33,7 +35,7 @@ public class IRReceiver implements Updatable {
 
             String pulseCode = "";
             for (int i = 0; i < 12; i++) {
-                if (BoeBot.pulseIn(pinNumber, false, 20000) < 800) {
+                if (BoeBot.pulseIn(pinNumber, false, 20000) < bitThreshold) {
                     pulseCode += "0";
                 } else {
                     pulseCode += "1";
@@ -45,7 +47,7 @@ public class IRReceiver implements Updatable {
 
             if (deviceID != 1) return;
 
-            irSignalNeoPixel.setColorAndTurnOn(new Color(100, 100, 100));
+            irSignalNeoPixel.turnOn(new Color(100, 100, 100));
             callback.onIRReceiverEvent(receiverCode);
         } else if (receivedSignal) {
             irSignalNeoPixel.turnOff();

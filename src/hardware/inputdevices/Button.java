@@ -12,7 +12,9 @@ public class Button implements Updatable {
     private final int pinNumber;
     private final RobotMain callback;
 
-    public Button(byte pinNumber, RobotMain callback) {
+    private boolean isPressed = false;
+
+    public Button(int pinNumber, RobotMain callback) {
         PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"input"});
         this.pinNumber = pinNumber;
         this.callback = callback;
@@ -21,7 +23,12 @@ public class Button implements Updatable {
     @Override
     public void update() {
         if (!BoeBot.digitalRead(pinNumber)) {
-            callback.onButtonEvent(this);
+            if (!isPressed) {
+                isPressed = true;
+                callback.onButtonEvent();
+            }
+        } else if (isPressed) {
+            isPressed = false;
         }
     }
 }

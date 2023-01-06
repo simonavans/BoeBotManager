@@ -4,10 +4,9 @@ import TI.BoeBot;
 import TI.Timer;
 import hardware.Settings;
 import hardware.inputdevices.Bluetooth;
-import hardware.inputdevices.Button;
 import hardware.inputdevices.IRReceiver;
-import hardware.inputdevices.sensor.LineSensors;
-import hardware.inputdevices.sensor.Sensor;
+import hardware.outputdevices.Buzzer;
+import link.LineSensors;
 import hardware.inputdevices.sensor.UltrasonicSensor;
 import hardware.outputdevices.Engine;
 import hardware.outputdevices.Gripper;
@@ -17,45 +16,49 @@ import link.callbacks.*;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
+
+//todo connect buzzer to pin number in settings
 
 /**
  * The heart of the BoeBot application. It initializes the BoeBot and makes sure hardware is running.
  *
  * @author Team B2
  */
-public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCallback, LineSensorsCallback, BluetoothCallback {
+public class RobotMain implements IRReceiverCallback, UltrasonicCallback, ButtonCallback, LineSensorsCallback, BluetoothCallback, EngineCallback {
     // ArrayList containing all hardware that needs to run constantly
     private static final ArrayList<Updatable> updatables = new ArrayList<>();
 
     // Settings of the current BoeBot setup. May differ between BoeBots.
-    // TODO not yet all settings are in use. Fix this.
     private final Settings settings = new Settings(
-            3,
-            25, 1500, 1497,
-            1400, 1800,
+            500,
+            3, 100,
+            25, 50, 0, -3, 1000,
+            800,
+            1400, 1800, 400, 700, 500,
             115200, 2200, 1250,
-            14, 1, 13, 12, 0, 1, new int[]{0, 1, 2});
-
-    // Input updatables, they check for input from surroundings
-    private final UltrasonicSensor ultrasonicFront = new UltrasonicSensor(settings.ULTRASONIC_INPUT_PIN, settings.ULTRASONIC_OUTPUT_PIN, settings.ULTRASONIC_THRESHOLD, this);
-    private final IRReceiver irReceiver = new IRReceiver(settings.IR_RECEIVER_PIN, new NeoPixel(1), this);
-    private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, this);
-    private final Bluetooth bluetoothReceiver = new Bluetooth(settings.BLUETOOTH_BAUDRATE, this);
+            14, 1, 13, 12, 0, 1, new int[]{0, 1, 2}, 2);
 
     // Output updatables, they alter the state of the BoeBot and/or the environment
-    private final Engine engine = new Engine(settings.LEFT_WHEEL_PIN, settings.RIGHT_WHEEL_PIN, settings.ENGINE_STOP_SPEED_LEFT, settings.ENGINE_STOP_SPEED_RIGHT, settings.ENGINE_FORWARD_SPEED);
+    private final Engine engine = new Engine(settings.LEFT_WHEEL_PIN, settings.RIGHT_WHEEL_PIN, settings.ENGINE_NEUTRAL_OFFSET_LEFT, settings.ENGINE_NEUTRAL_OFFSET_RIGHT, settings.ENGINE_FORWARD_SPEED, settings.ENGINE_BACK_STEER_SPEED, settings.ENGINE_TURN_TIME, this);
     private final Gripper gripper = new Gripper(settings.GRIPPER_PIN, settings.GRIPPER_OPEN_FREQUENCY, settings.GRIPPER_CLOSE_FREQUENCY);
-    private final NeoPixel locationPixel = new NeoPixel(0, new Color(128, 0, 0));
-    private final NeoPixel ultrasonicPixel = new NeoPixel(2, new Color(0, 128, 0));
-    //TODO make NeoPixel manager for controlling NeoPixels that indicate direction
-    private final NeoPixel leftTurnPixel = new NeoPixel(5);
-    private final NeoPixel forwardPixel = new NeoPixel(4);
-    private final NeoPixel rightTurnPixel = new NeoPixel(3);
+    private final NeoPixel pixel0 = new NeoPixel(0, Color.BLACK);
+    private final NeoPixel pixel1 = new NeoPixel(1, Color.BLACK);
+    private final NeoPixel pixel2 = new NeoPixel(2, Color.BLACK);
+    private final NeoPixel pixel3 = new NeoPixel(3, Color.BLACK);
+    private final NeoPixel pixel4 = new NeoPixel(4, Color.BLACK);
+    private final NeoPixel pixel5 = new NeoPixel(5, Color.BLACK);
+    private final Buzzer buzzer = new Buzzer(settings.BUZZER_PIN);
 
-    // Used as a cooldown for inputting coordinates, to prevent inputting the same number twice
-    // when the button was only pressed once.
-    private Timer coordinateInputTimer;
+    // Input updatables, they check for input from surroundings
+    private final UltrasonicSensor ultrasonicFront = new UltrasonicSensor(settings.ULTRASONIC_INPUT_PIN, settings.ULTRASONIC_OUTPUT_PIN, settings.ULTRASONIC_GRAB_THRESHOLD, settings.ULTRASONIC_UNKNOWN_OBJECT_THRESHOLD, pixel2, this);
+    private final IRReceiver irReceiver = new IRReceiver(settings.IR_RECEIVER_PIN, pixel0, settings.IR_RECEIVER_BIT_THRESHOLD, this);
+    private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, settings.LINE_SENSOR_THRESHOLD, settings.LINE_SENSOR_CEILING, settings.LINE_SENSORS_WAIT_AFTER_DEVIATION, settings.LINE_SENSORS_WAIT_BEFORE_CROSSROAD, settings.LINE_SENSORS_DELAY_AFTER_CROSSROAD, this);
+    private final Bluetooth bluetoothReceiver = new Bluetooth(settings.BLUETOOTH_BAUDRATE, this);
+
+
+    private boolean isListening = true;
+    private boolean emergencyBrakeEnabled = false;
+    private Timer objectPlacementTimer;
 
     /**
      * Runs when the BoeBot has booted up. Makes sure initialization happens and that hardware will execute
@@ -94,56 +97,48 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
             for (Updatable updatable : updatables) {
                 updatable.update();
             }
-            if (coordinateInputTimer != null && coordinateInputTimer.timeout()) {
-                // Resets this Timer
-                coordinateInputTimer = null;
+
+            if (objectPlacementTimer != null && objectPlacementTimer.timeout()) {
+                gripper.open();
+                objectPlacementTimer = null;
             }
-            BoeBot.wait(10);
+
+            BoeBot.wait(1);
         }
     }
 
-    /**
-     * Runs when a crossroad is detected on the grid by the line sensors.
-     *
-     * @author Simon
-     */
     @Override
     public void onDetectCrossroad() {
-        String command = NavigationManager.nextCommandAndUpdate();
+        lineSensors.disable();
+        engine.brake();
 
-        if (command.equals("turn")) {
-            engine.turn90(true);
-        } else if (command.equals("brake")) {
-            engine.brake();
-            overrideLineSensors();
+        if (engine.isInReverse()) {
+            ultrasonicFront.enable();
+            pixel1.resetBlink();
+            buzzer.resetRepeatingBeep();
+            engine.setReverseMode(false);
         }
-        leftTurnPixel.setColorAndTurnOn(new Color(128, 0, 0));
-        forwardPixel.setColorAndTurnOn(new Color(128, 0, 0));
-        rightTurnPixel.setColorAndTurnOn(new Color(128, 0, 0));
+        isListening = true;
+        bluetoothReceiver.transmitCommand("Boebot: Succeeded");
     }
 
     /**
      * Runs when the line sensors detect that the BoeBot deviates from its route.
      * There is a slight delay between the actual detection and calling this method.
      * When this runs, the bot will try to align itself by steering toward the line.
-     * @param toLeft Whether a deviation to the left occurred, or to the right.
      *
+     * @param toLeft Whether a deviation to the left occurred, or to the right.
      * @author Simon
      */
     @Override
     public void onDeviate(boolean toLeft) {
         if (toLeft) {
             // Too far to left, so BoeBot should turn right
-            engine.turnSpeed(25, -50);
-            leftTurnPixel.setColorAndTurnOn(new Color(128, 0, 0));
-            rightTurnPixel.turnOff();
+            engine.changeDirection(false);
         } else {
             // Too far to right, so BoeBot should turn left
-            engine.turnSpeed(-50, 25);
-            leftTurnPixel.turnOff();
-            rightTurnPixel.setColorAndTurnOn(new Color(128, 0, 0));
+            engine.changeDirection(true);
         }
-        forwardPixel.turnOff();
     }
 
     /**
@@ -154,10 +149,7 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
      */
     @Override
     public void onDriveStraight() {
-        engine.drive(25);
-        leftTurnPixel.turnOff();
-        forwardPixel.setColorAndTurnOn(new Color(128, 0, 0));
-        rightTurnPixel.turnOff();
+        engine.drive();
     }
 
     /**
@@ -168,137 +160,154 @@ public class RobotMain implements IRReceiverCallback, SensorCallback, ButtonCall
      */
     @Override
     public void onIRReceiverEvent(int receiverCode) {
-        if (receiverCode == 12) {
-            // Button: Enter (001100010000)
-            enableUltrasonic();
-        } else if (receiverCode == 16) {
-            // Button: Ch+ (000010010000)
-            engine.drive(25);
-            overrideLineSensors();
-        } else if (receiverCode == 17) {
-            // Button: Ch- (100010010000)
-            engine.drive(-25);
-            overrideLineSensors();
-        } else if (receiverCode == 18) {
-            // Button: Vol+ > (010010010000)
-            engine.turn90(false);
-            overrideLineSensors();
-        } else if (receiverCode == 19) {
-            // Button: < Vol- (110010010000)
-            engine.turn90(true);
-            overrideLineSensors();
-        } else if (receiverCode == 20) {
-            // Button: Mute sound (001010010000)
-            gripper.open();
-        } else if (receiverCode == 21) {
-            // Button: Power (101010010000)
-            engine.brake();
-            overrideLineSensors();
-        } else if (coordinateInputTimer == null) {
-            int numpadNumber = receiverCode + 1;
-
-            // The button for 0 will have numpadNumber 10, but has to be set to 0.
-            if (numpadNumber == 10) receiverCode = 0;
-
-            // Check if the code was a numpad number
-            if (receiverCode < 10) {
-                if (Arrays.equals(NavigationManager.getDestination(), new Integer[]{null, null})) {
-                    // Set X-coordinate
-                    NavigationManager.setX(numpadNumber);
-                    locationPixel.setColorAndTurnOn(new Color(128, 123, 0));
-                    coordinateInputTimer = new Timer(500);
-                    coordinateInputTimer.mark();
-                } else if (NavigationManager.getDestination()[1] == null) {
-                    // Set Y-coordinate
-                    NavigationManager.setY(numpadNumber);
-                    locationPixel.setColorAndTurnOn(Color.BLACK);
-                    lineSensors.enable();
-                    enableUltrasonic();
+        switch (receiverCode) {
+            case 12:
+                // Button: Enter (001100010000)
+                if (emergencyBrakeEnabled) {
+                    disableEmergencyBrake();
+                    bluetoothReceiver.transmitCommand("Remote: Resume");
                 }
-            }
+                break;
+            case 16:
+                // Button: Ch+ (000010010000)
+                bluetoothReceiver.transmitCommand("Remote: Forward");
+                break;
+            case 17:
+                // Button: Ch- (100010010000)
+                bluetoothReceiver.transmitCommand("Remote: Backward");
+                break;
+            case 18:
+                // Button: Vol+ > (010010010000)
+                bluetoothReceiver.transmitCommand("Remote: Right");
+                break;
+            case 19:
+                // Button: < Vol- (110010010000)
+                bluetoothReceiver.transmitCommand("Remote: Left");
+                break;
+            case 20:
+                // Button: Mute sound (001010010000)
+                bluetoothReceiver.transmitCommand("Remote: Place");
+                break;
+            case 21:
+                // Button: Power (101010010000)
+                bluetoothReceiver.transmitCommand("Remote: Brake");
+                break;
+            default:
+                System.out.println("Warning: Unknown remote command: " + receiverCode);
         }
     }
 
     /**
      * Runs when any sensor's callback is triggered. Executes code based
      * on which sensor triggered this method.
-     * @param source the type of Sensor that triggered the method.
      *
+     * @param isUnknownObject whether the object detected is an unknown object or
      * @author Simon
      */
     @Override
-    public void onSensorEvent(Sensor source) {
-        if (source == ultrasonicFront) {
+    public void onSensorEvent(boolean isUnknownObject) {
+        if (isUnknownObject) {
+            bluetoothReceiver.transmitCommand("Boebot: Object");
+        } else {
             gripper.close();
-            ultrasonicPixel.setColorAndTurnOn(new Color(128, 0, 0));
         }
+    }
+
+    @Override
+    public void onCompletedTurn() {
+        isListening = true;
+        bluetoothReceiver.transmitCommand("Boebot: Succeeded");
     }
 
     /**
      * Runs when the bluetooth chip receives a signal. Executes code based
      * on the data parameter.
-     * @param command the command which is transmitted to the BoeBot.
      *
+     * @param command the command which is transmitted to the BoeBot.
      * @author Simon and Kerr
      */
     @Override
     public void onBluetoothEvent(String command) {
-        switch (command) {
-            case "Application: Forward":
-                // forward
-                break;
-            case "Application: Left":
-                // turn left
-                break;
-            case "Application: Right":
-                // turn right
-                break;
-            case "Application: Place":
-                // place object
-                break;
-            case "Application: Brake":
-                // Brake
-                break;
-            default:
-                System.out.println("Warning: Unknown bluetooth data: " + command);
+        if (command.equals("Application: Brake")) {
+            // brake
+            enableEmergencyBrake();
+            return;
+        }
+
+        if (isListening && !emergencyBrakeEnabled) {
+            switch (command) {
+                case "Application: Forward":
+                    // forward
+                    engine.drive();
+                    lineSensors.delayedEnable();
+                    break;
+                case "Application: Left":
+                    // turn left
+                    engine.turn90(true);
+                    pixel5.blink(Color.ORANGE, 1000, 2, false);
+                    break;
+                case "Application: Right":
+                    // turn right
+                    engine.turn90(false);
+                    pixel3.blink(Color.ORANGE, 1000, 2, false);
+                    break;
+                case "Application: Place":
+                    // place object
+                    engine.setReverseMode(true);
+                    engine.drive();
+                    lineSensors.delayedEnable();
+                    pixel1.blink(new Color(100, 100, 100), 10000, 20, false);
+                    buzzer.repeatingBeep(10000, 20, false);
+                    objectPlacementTimer = new Timer(settings.ROBOTMAIN_OBJECT_PLACEMENT_TIME);
+                    objectPlacementTimer.mark();
+                    break;
+                default:
+                    System.out.println("Warning: Unknown bluetooth command: " + command);
+            }
+
+            isListening = false;
         }
     }
 
     /**
-     * Runs when the Button callback is triggered. Executes code based
-     * on which Button triggered this method.
-     * @param source the type of Button that triggered the method.
+     * Runs when the Button callback is triggered.
      *
      * @author Simon
      */
     @Override
-    public void onButtonEvent(Button source) {
-
+    public void onButtonEvent() {
+        if (emergencyBrakeEnabled) {
+            disableEmergencyBrake();
+        } else {
+            enableEmergencyBrake();
+        }
     }
 
-    /**
-     * Turns off line sensors and therefore the coordinate
-     * navigation ability of the BoeBot.
-     *
-     * @author Simon
-     */
-    private void overrideLineSensors() {
+    private void enableEmergencyBrake() {
+        emergencyBrakeEnabled = true;
         lineSensors.disable();
-        NavigationManager.resetDestination();
-        locationPixel.setColorAndTurnOn(new Color(128, 0, 0));
-        leftTurnPixel.turnOff();
-        forwardPixel.turnOff();
-        rightTurnPixel.turnOff();
+        engine.brake();
+        bluetoothReceiver.transmitCommand("Boebot: Brake");
+
+        // The poor Boebot starts to panic because it has no logic for what to do now
+        pixel0.blink(Color.RED, 300000, 600, true);
+        pixel1.blink(Color.RED, 300000, 600, true);
+        pixel2.blink(Color.RED, 300000, 600, true);
+        pixel3.blink(Color.RED, 300000, 600, true);
+        pixel4.blink(Color.RED, 300000, 600, true);
+        pixel5.blink(Color.RED, 300000, 600, true);
+        buzzer.repeatingBeep(300000, 600, true);
     }
 
-    /**
-     * Method to re-enable the ultrasonic sensor
-     *
-     * @author Simon
-     */
-    private void enableUltrasonic() {
+    private void disableEmergencyBrake() {
+        emergencyBrakeEnabled = false;
         ultrasonicFront.enable();
-        ultrasonicPixel.setColorAndTurnOn(new Color(0, 128, 0));
-        gripper.open();
+        pixel0.resetBlink();
+        pixel1.resetBlink();
+        pixel2.resetBlink();
+        pixel3.resetBlink();
+        pixel4.resetBlink();
+        pixel5.resetBlink();
+        buzzer.resetRepeatingBeep();
     }
 }

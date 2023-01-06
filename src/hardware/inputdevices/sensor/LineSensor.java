@@ -2,6 +2,7 @@ package hardware.inputdevices.sensor;
 
 import TI.BoeBot;
 import hardware.PinRegistry;
+import link.LineSensors;
 import link.Updatable;
 
 /**

@@ -2,28 +2,33 @@ package hardware.outputdevices;
 
 import TI.Servo;
 import TI.Timer;
+import application.RobotMain;
 import hardware.PinRegistry;
 import link.Updatable;
 
 public class Engine implements Updatable {
+    private final RobotMain callback;
+
     private Servo wheelLeft;
     private Servo wheelRight;
-    private final int stopSpeedLeft;
-    private final int stopSpeedRight;
-    private final int forwardSpeed;
+    private final int leftWheelNeutralOffset;
+    private final int rightWheelNeutralOffset;
+    private final int driveSpeed;
+    private final int backSteerSpeed;
+    private final int turnTime;
     private Timer turnTimer;
+    private boolean reverseMode = false;
 
-    //TODO delete if Kerr is fine with it
-    private int speedWheelLeft = 1500;
-    private int speedWheelRight = 1500;
-
-    public Engine(int leftWheelPin, int rightWheelPin, int stopSpeedLeft, int stopSpeedRight, int forwardSpeed) {
+    public Engine(int leftWheelPin, int rightWheelPin, int leftWheelNeutralOffset, int rightWheelNeutralOffset, int forwardSpeed, int backSteerSpeed, int turnTime, RobotMain callback) {
         PinRegistry.registerPins(new int[]{leftWheelPin, rightWheelPin}, new String[]{"output", "output"});
         wheelLeft = new Servo(leftWheelPin);
         wheelRight = new Servo(rightWheelPin);
-        this.stopSpeedLeft = stopSpeedLeft;
-        this.stopSpeedRight = stopSpeedRight;
-        this.forwardSpeed = forwardSpeed;
+        this.leftWheelNeutralOffset = 1500 + leftWheelNeutralOffset;
+        this.rightWheelNeutralOffset = 1500 + rightWheelNeutralOffset;
+        this.driveSpeed = forwardSpeed;
+        this.backSteerSpeed = -backSteerSpeed;
+        this.turnTime = turnTime;
+        this.callback = callback;
 
         brake();
     }
@@ -33,118 +38,63 @@ public class Engine implements Updatable {
         if (turnTimer == null) return;
 
         if (turnTimer.timeout()) {
-            drive(25);
+            brake();
             turnTimer = null;
+            callback.onCompletedTurn();
         }
     }
 
-    public void drive(int speed) {
-        int frequencyLeft = stopSpeedLeft + speed;
-        int frequencyRight = stopSpeedRight - speed;
-
-        if (wheelLeft.getPulseWidth() != frequencyLeft) {
-            wheelLeft.update(frequencyLeft);
+    public void drive() {
+        if (wheelLeft.getPulseWidth() != leftWheelNeutralOffset + driveSpeed) {
+            setLeftWheelSpeed(driveSpeed);
         }
-        if (wheelRight.getPulseWidth() != frequencyRight) {
-            wheelRight.update(frequencyRight);
+        if (wheelRight.getPulseWidth() != rightWheelNeutralOffset - driveSpeed) {
+            setRightWheelSpeed(driveSpeed);
         }
     }
 
-    public void turnSpeed(int leftWheelSpeed, int rightWheelSpeed) {
-        wheelLeft.update(stopSpeedLeft + leftWheelSpeed);
-        wheelRight.update(stopSpeedRight - rightWheelSpeed);
+    public void changeDirection(boolean toLeft) {
+        setLeftWheelSpeed(toLeft ? backSteerSpeed : driveSpeed);
+        setRightWheelSpeed(toLeft ? driveSpeed : backSteerSpeed);
     }
 
     public void turn90(boolean toLeft) {
         if (turnTimer == null) {
-            int leftWheelSpeed = toLeft ? -50 : 25;
-            int rightWheelSpeed = toLeft ? 25 : -50;
+            setLeftWheelSpeed(toLeft ? backSteerSpeed : driveSpeed);
+            setRightWheelSpeed(toLeft ? driveSpeed : backSteerSpeed);
 
-            wheelLeft.update(stopSpeedLeft + leftWheelSpeed);
-            wheelRight.update(stopSpeedRight - rightWheelSpeed);
-            turnTimer = new Timer(1000);
+            turnTimer = new Timer(turnTime);
             turnTimer.mark();
+        } else {
+            System.out.println("Warning: A turnTimer is still in progress, can not start another one yet! (Engine class)");
+
         }
     }
 
     public void brake() {
-        wheelLeft.update(stopSpeedLeft);
-        wheelRight.update(stopSpeedRight);
+        wheelLeft.update(leftWheelNeutralOffset);
+        wheelRight.update(rightWheelNeutralOffset);
     }
 
-    /**
-     * @author Kerr
-     *
-     * Increase the speed (pulse width)  of the left wheel by a given amount.
-     * @param speed the speed increase the wheel should receive. Can be negative in order to decrease speed (int).
-     *
-     */
-    //TODO delete if Kerr is fine with it
-    public void increaseSpeedWheelLeft(int speed) {
-        wheelLeft.update(speedWheelLeft + speed);
-        speedWheelLeft += speed;
+    public boolean isInReverse() { return reverseMode; }
+
+    public void setReverseMode(boolean reverseMode) {
+        this.reverseMode = reverseMode;
     }
 
-    /**
-     * @author Kerr
-     *
-     * Increase the speed (pulse width)  of the right wheel by a given amount.
-     * @param speed the speed increase the wheel should receive. Can be negative in order to decrease speed (int).
-     *
-     */
-    //TODO delete if Kerr is fine with it
-    public void increaseSpeedWheelRight(int speed) {
-        wheelRight.update(speedWheelRight + speed);
-        speedWheelRight += speed;
+    private void setLeftWheelSpeed(int leftWheelSpeed) {
+        if (reverseMode) {
+            wheelLeft.update(leftWheelNeutralOffset - leftWheelSpeed);
+        } else {
+            wheelLeft.update(leftWheelNeutralOffset + leftWheelSpeed);
+        }
     }
 
-    /**
-     * @author Kerr
-     *
-     * Update the speed (pulse width)  of the left wheel.
-     * @param speed the speed to which the wheel should be updated (int).
-     *
-     */
-    //TODO delete if Kerr is fine with it
-    public void setSpeedWheelLeft(int speed) {
-        wheelLeft.update(speed);
-        speedWheelLeft = speed;
-    }
-
-    /**
-     * @author Kerr
-     *
-     * Update the speed (pulse width)  of the right wheel.
-     * @param speed the speed to which the wheel should be updated (int).
-     *
-     */
-    //TODO delete if Kerr is fine with it
-    public void setSpeedWheelRight(int speed) {
-        wheelRight.update(speed);
-        speedWheelRight = speed;
-    }
-
-    /**
-     * @author Kerr
-     *
-     * get the current speed (pulse width) of the left wheel.
-     *
-     * @return current speed of the left wheel (int).
-     */
-    //TODO delete if Kerr is fine with it
-    public int getCurrentSpeedLeft() {
-        return speedWheelLeft;
-    }
-
-    /**
-     * @author Kerr
-     *
-     * get the current speed (pulse width) of the right wheel.
-     *
-     * @return current speed of the left wheel (int).
-     */
-    //TODO delete if Kerr is fine with it
-    public int getCurrentSpeedRight() {
-        return speedWheelRight;
+    private void setRightWheelSpeed(int rightWheelSpeed) {
+        if (reverseMode) {
+            wheelRight.update(rightWheelNeutralOffset + rightWheelSpeed);
+        } else {
+            wheelRight.update(rightWheelNeutralOffset - rightWheelSpeed);
+        }
     }
 }

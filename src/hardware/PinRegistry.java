@@ -11,7 +11,6 @@ import java.util.HashMap;
 public class PinRegistry {
     private static HashMap<Integer, String> pins = new HashMap<>();
 
-    //TODO? handle thrown exceptions
     /**
      * Registers pins to use by hardware on the BoeBot.
      * @param pinNumbers an array of pin numbers to register.

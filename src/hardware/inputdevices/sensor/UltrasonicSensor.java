@@ -4,7 +4,10 @@ import TI.BoeBot;
 import TI.Timer;
 import application.RobotMain;
 import hardware.PinRegistry;
+import hardware.outputdevices.led.NeoPixel;
 import link.Updatable;
+
+import java.awt.*;
 
 /**
  * The ultrasonic sensor is a type of sensor that, given an electronic signal,
@@ -15,30 +18,46 @@ import link.Updatable;
 public class UltrasonicSensor implements Updatable, Sensor<Integer> {
     private final int inputPinNumber;
     private final int outputPinNumber;
+    private final int grabThreshold;
+    private final int unknownObjectThreshold;
+    private final NeoPixel ultrasonicPixel;
     private final RobotMain callback;
-    private int measuredDistance;
-    private int threshold;
-    private boolean enabled = true;
-    private Timer clock = new Timer(100);
 
-    public UltrasonicSensor(int inputPinNumber, int outputPinNumber, int sensorThreshold, RobotMain callback) {
+    private int measuredDistance;
+    private boolean enabled = true;
+    private Timer measurementCooldown;
+
+    public UltrasonicSensor(int inputPinNumber, int outputPinNumber, int grabThreshold, int unknownObjectThreshold, NeoPixel ultrasonicPixel, RobotMain callback) {
         PinRegistry.registerPins(new int[]{inputPinNumber, outputPinNumber}, new String[]{"input", "output"});
         this.inputPinNumber = inputPinNumber;
         this.outputPinNumber = outputPinNumber;
-        this.threshold = sensorThreshold;
+        this.grabThreshold = grabThreshold;
+        this.unknownObjectThreshold = unknownObjectThreshold;
+        this.ultrasonicPixel = ultrasonicPixel;
         this.callback = callback;
-        clock.mark();
+
+        measurementCooldown = new Timer(100);
+        measurementCooldown.mark();
     }
 
     public void enable() {
         enabled = true;
+        ultrasonicPixel.turnOn(new Color(0, 128, 0));
     }
 
     @Override
     public void update() {
-        if (isOnOrOverThreshold() && enabled) {
-            callback.onSensorEvent(this);
-            enabled = false;
+        if (enabled) {
+            int currentSensorValue = getSensorValue();
+
+            if (currentSensorValue < 1) return;
+
+            if (currentSensorValue <= grabThreshold) {
+                callback.onSensorEvent(false);
+                enabled = false;
+            } else if (currentSensorValue <= unknownObjectThreshold) {
+                callback.onSensorEvent(true);
+            }
         }
     }
 
@@ -48,7 +67,7 @@ public class UltrasonicSensor implements Updatable, Sensor<Integer> {
      * reverberation and the sensor (in centimeters)
      */
     public Integer getSensorValue() {
-        if (!clock.timeout()) return measuredDistance;
+        if (!measurementCooldown.timeout()) return measuredDistance;
 
         // Send a signal of 1ms to trigger the ultrasonic speaker
         BoeBot.digitalWrite(outputPinNumber, true);
@@ -64,13 +83,13 @@ public class UltrasonicSensor implements Updatable, Sensor<Integer> {
     /**
      * Returns true if the distance between the ultrasonic sensor and the
      * object which caused the reverberation is smaller than or equal to
-     * the threshold value, which is considered to be "right in front of it".
-     * @return true if distance is greater than or equal to the threshold value,
-     * false if distance is smaller than the threshold value.
+     * the grabThreshold value, which is considered to be "right in front of it".
+     * @return true if distance is greater than or equal to the grabThreshold value,
+     * false if distance is smaller than the grabThreshold value.
      */
     @Override
     public boolean isOnOrOverThreshold() {
         Integer measuredValue = getSensorValue();
-        return measuredValue > 0 && measuredValue <= threshold;
+        return measuredValue > 0 && measuredValue <= grabThreshold;
     }
 }

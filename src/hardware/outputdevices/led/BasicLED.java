@@ -9,7 +9,7 @@ import hardware.PinRegistry;
  * Class for a basic breadboard LED (single color, digital signal) on the BoeBot.
  * @author Simon de Cock
  */
-public class BasicLED implements LED {
+public class BasicLED {
     private final int pinNumber;
     private PWM dimPWM;
     private Timer blinkMethodTimer;
@@ -21,12 +21,10 @@ public class BasicLED implements LED {
         this.pinNumber = pinNumber;
     }
 
-    @Override
     public void turnOn() {
         BoeBot.digitalWrite(pinNumber, true);
     }
 
-    @Override
     public void turnOff() {
         BoeBot.digitalWrite(pinNumber, false);
     }
@@ -37,9 +35,9 @@ public class BasicLED implements LED {
      * being continuously called in the run method to check when it should turn on or off.
      * @param milliseconds How long a full cycle (on and off time combined) should last.
      * @author Simon de Cock
+     * TODO remove this class?
      */
-    @Override
-    public void updateBlink(int milliseconds) {
+    public void blink(int milliseconds) {
         if (blinkMethodTimer == null) {
             blinkMethodTimer = new Timer(milliseconds);
             dimPWM = null;
