@@ -2,7 +2,7 @@ package link;
 
 public interface Updatable {
     /**
-     * The method used for letting the hardware execute its code once.
+     * An essential method used for letting the hardware classes update themselves over time.
      */
     void update();
 }

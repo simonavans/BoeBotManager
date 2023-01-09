@@ -11,6 +11,7 @@ public class Gripper {
     private Servo gripper;
     private final int openFrequency;
     private final int closeFrequency;
+    private boolean isOpened;
 
     public Gripper(int pinNumber, int openFrequency, int closeFrequency) {
         PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"output"});
@@ -21,11 +22,17 @@ public class Gripper {
         open();
     }
 
+    public boolean isOpened() {
+        return isOpened;
+    }
+
     public void open() {
         gripper.update(openFrequency);
+        isOpened = true;
     }
 
     public void close() {
         gripper.update(closeFrequency);
+        isOpened = false;
     }
 }

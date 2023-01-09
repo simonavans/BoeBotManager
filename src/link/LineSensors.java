@@ -16,7 +16,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
     private LineSensor sensorLeft;
     private LineSensor sensorMiddle;
     private LineSensor sensorRight;
-    private boolean[] detectionStates = {false, false, false};
+    private boolean[] seesLineStates = {false, false, false};
 
     private Timer beforeCrossroadTimer;
     private Timer deviateLeftTimer;
@@ -44,7 +44,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
             sensorMiddle.update();
             sensorRight.update();
 
-            if (!detectionStates[0] && !detectionStates[2]) {
+            if (!seesLineStates[0] && !seesLineStates[2]) {
                 detectedCrossroad = false;
                 callback.onDriveStraight();
                 return;
@@ -57,7 +57,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
             }
 
             if (deviateLeftTimer == null) {
-                if (!detectionStates[0] && detectionStates[2]) {
+                if (!seesLineStates[0] && seesLineStates[2]) {
                     deviateLeftTimer = new Timer(waitAfterDeviation);
                     deviateLeftTimer.mark();
                 }
@@ -68,7 +68,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
             }
 
             if (deviateRightTimer == null) {
-                if (detectionStates[0] && !detectionStates[2]) {
+                if (seesLineStates[0] && !seesLineStates[2]) {
                     deviateRightTimer = new Timer(waitAfterDeviation);
                     deviateRightTimer.mark();
                 }
@@ -78,7 +78,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
                 return;
             }
 
-            if (Arrays.equals(detectionStates, new boolean[]{true, true, true})) {
+            if (seesLineStates[0] && seesLineStates[1] && seesLineStates[2]) {
                 detectedCrossroad = true;
                 beforeCrossroadTimer = new Timer(waitBeforeCrossroad);
                 beforeCrossroadTimer.mark();
@@ -94,23 +94,23 @@ public class LineSensors implements Updatable, LineSensorCallback {
     public void onLineDetectedEvent(LineSensor source) {
         // Change detectionState depending on which sensor called this method
         if (source == sensorLeft) {
-            detectionStates[0] = true;
+            seesLineStates[0] = true;
         } else if (source == sensorMiddle) {
-            detectionStates[1] = true;
+            seesLineStates[1] = true;
         } else if (source == sensorRight) {
-            detectionStates[2] = true;
+            seesLineStates[2] = true;
         }
     }
 
     @Override
-    public void onLineUndetectedEvent(LineSensor source) {
+    public void onNoLineDetectedEvent(LineSensor source) {
         // Change detectionState depending on which sensor called this method
         if (source == sensorLeft) {
-            detectionStates[0] = false;
+            seesLineStates[0] = false;
         } else if (source == sensorMiddle) {
-            detectionStates[1] = false;
+            seesLineStates[1] = false;
         } else if (source == sensorRight) {
-            detectionStates[2] = false;
+            seesLineStates[2] = false;
         }
     }
 
@@ -119,6 +119,11 @@ public class LineSensors implements Updatable, LineSensorCallback {
             delayedEnablingTimer = new Timer(this.waitAfterCrossroad);
             delayedEnablingTimer.mark();
         }
+    }
+
+    public void enable() {
+        delayedEnablingTimer = null;
+        enabled = true;
     }
 
     public void disable() {
