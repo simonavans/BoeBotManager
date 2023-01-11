@@ -39,7 +39,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             800,
             1400, 1800, 400, 700, 500,
             115200, 2200, 1250,
-            14, 1, 11, 2, 13, 12, 0, 1, new int[]{0, 1, 2}, 2);
+            14, 1, 11, 3, 13, 12, 0, 1, new int[]{0, 1, 2}, 2);
 
     // Output updatables, they alter the state of the BoeBot or log useful information to the user, like LEDs
     private final Engine engine = new Engine(settings.LEFT_WHEEL_PIN, settings.RIGHT_WHEEL_PIN, settings.ENGINE_NEUTRAL_OFFSET_LEFT, settings.ENGINE_NEUTRAL_OFFSET_RIGHT, settings.ENGINE_FORWARD_SPEED, settings.ENGINE_BACK_STEER_SPEED, settings.ENGINE_TURN_TIME, settings.ENGINE_OBJECT_PLACEMENT_TIME, this);
@@ -53,8 +53,8 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     private final Buzzer buzzer = new Buzzer(settings.BUZZER_PIN);
 
     // Input updatables, they check for input from the BoeBot's environment
-    private final UltrasonicSensor ultrasonicClose = new UltrasonicSensor(settings.ULTRASONIC_CLOSE_INPUT_PIN, settings.ULTRASONIC_CLOSE_OUTPUT_PIN, settings.ULTRASONIC_CLOSE_THRESHOLD, pixel2, this);
-    private final UltrasonicSensor ultrasonicFar = new UltrasonicSensor(settings.ULTRASONIC_FAR_INPUT_PIN, settings.ULTRASONIC_FAR_OUTPUT_PIN, settings.ULTRASONIC_FAR_THRESHOLD, null, this);
+    private final UltrasonicSensor ultrasonicClose = new UltrasonicSensor(settings.ULTRASONIC_CLOSE_ECHO_PIN, settings.ULTRASONIC_CLOSE_TRIGGER_PIN, settings.ULTRASONIC_CLOSE_THRESHOLD, pixel2, this);
+    private final UltrasonicSensor ultrasonicFar = new UltrasonicSensor(settings.ULTRASONIC_FAR_ECHO_PIN, settings.ULTRASONIC_FAR_TRIGGER_PIN, settings.ULTRASONIC_FAR_THRESHOLD, null, this);
     private final IRReceiver irReceiver = new IRReceiver(settings.IR_RECEIVER_PIN, pixel0, settings.IR_RECEIVER_BIT_THRESHOLD, this);
     private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, settings.LINE_SENSOR_THRESHOLD, settings.LINE_SENSOR_CEILING, settings.LINE_SENSORS_WAIT_AFTER_DEVIATION, settings.LINE_SENSORS_WAIT_BEFORE_CROSSROAD, settings.LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS, this);
     private final Bluetooth bluetoothReceiver = new Bluetooth(settings.BLUETOOTH_BAUDRATE, this);
