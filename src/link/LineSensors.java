@@ -5,6 +5,8 @@ import application.RobotMain;
 import hardware.inputdevices.sensor.LineSensor;
 import link.callbacks.LineSensorCallback;
 
+import java.util.Arrays;
+
 /**
  * This class sits in between the LineSensor and RobotMain classes. It directly
  * controls the three line sensors on the BoeBot and, using this information,
@@ -52,7 +54,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
         this.waitAfterDrivingBackwards = waitAfterDrivingBackwards;
         this.callback = callback;
 
-        this.enabled = false;
+        this.enabled = true;
     }
 
     /**
@@ -69,6 +71,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
             sensorLeft.update();
             sensorMiddle.update();
             sensorRight.update();
+            System.out.println(Arrays.toString(seesLineStates));
 
             // If there was a before crossroad timer and it timed out, then
             // the BoeBot is exactly on a crossroad. Therefore, call

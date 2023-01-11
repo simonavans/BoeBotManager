@@ -12,7 +12,7 @@ import java.util.HashMap;
  * pins and Neopixel led numbers.
  */
 public class PinRegistry {
-    private static HashMap<Integer, String> pins = new HashMap<>();
+    private static HashMap<String, String> pins = new HashMap<>();
 
     /**
      * Registers pins to use by hardware on the BoeBot.
@@ -42,9 +42,6 @@ public class PinRegistry {
 
             checkPin(pinNumber, pinMode);
 
-            // Pins are all correct by this point
-            pins.put(pinNumber, pinMode);
-
             // Check GPio input pins
             if (pinMode.equalsIgnoreCase("input")) {
                 BoeBot.setMode(pinNumber, PinMode.Input);
@@ -73,6 +70,7 @@ public class PinRegistry {
                             "Invalid pin number. Input and output pin numbers must be between 0 and 15 (inclusive) but was: " + pinNumber
                     );
                 }
+                pins.put("gpio" + pinNumber, pinMode);
                 break;
             case "adc":
                 if (pinNumber < 0 || pinNumber > 3) {
@@ -80,6 +78,7 @@ public class PinRegistry {
                             "Invalid pin number. ADC pin numbers must be between 0 and 3 (inclusive) but was: " + pinNumber
                     );
                 }
+                pins.put("adc" + pinNumber, "adc");
                 break;
             case "neopixel":
                 if (pinNumber < 0 || pinNumber > 5) {
@@ -87,6 +86,7 @@ public class PinRegistry {
                             "Invalid LED number. Neopixel LED numbers must be between 0 and 5 (inclusive) but was: " + pinNumber
                     );
                 }
+                pins.put("neopixel" + pinNumber, "neopixel");
                 break;
             default:
                 throw new IllegalArgumentException(
@@ -94,10 +94,11 @@ public class PinRegistry {
                 );
         }
 
-        if (pins.containsKey(pinNumber) && pins.get(pinNumber).equals(pinMode)) {
-            throw new IllegalArgumentException(
-                    "Pin number " + pinNumber + " is already occupied with mode " + pinMode
-            );
-        }
+        //todo fix this whole class basically :(
+//        if (pins.containsKey("" + pinNumber) && pins.get("" + pinNumber).equals(pinMode)) {
+//            throw new IllegalArgumentException(
+//                    "Pin number " + pinNumber + " is already occupied with mode " + pinMode
+//            );
+//        }
     }
 }

@@ -3,13 +3,14 @@ package application;
 import TI.BoeBot;
 import TI.Timer;
 import hardware.inputdevices.Bluetooth;
+import hardware.inputdevices.Button;
 import hardware.inputdevices.IRReceiver;
-import hardware.outputdevices.Buzzer;
-import link.LineSensors;
 import hardware.inputdevices.sensor.UltrasonicSensor;
+import hardware.outputdevices.Buzzer;
 import hardware.outputdevices.Engine;
 import hardware.outputdevices.Gripper;
 import hardware.outputdevices.led.NeoPixel;
+import link.LineSensors;
 import link.Updatable;
 import link.callbacks.*;
 
@@ -39,7 +40,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             800,
             1400, 1800, 400, 700, 500,
             115200, 2200, 1250,
-            14, 1, 11, 3, 13, 12, 0, 1, new int[]{0, 1, 2}, 2);
+            4, 10, 5, 9, 13, 12, 15, 3, new int[]{0, 1, 2}, 14);
 
     // Output updatables, they alter the state of the BoeBot or log useful information to the user, like LEDs
     private final Engine engine = new Engine(settings.LEFT_WHEEL_PIN, settings.RIGHT_WHEEL_PIN, settings.ENGINE_NEUTRAL_OFFSET_LEFT, settings.ENGINE_NEUTRAL_OFFSET_RIGHT, settings.ENGINE_FORWARD_SPEED, settings.ENGINE_BACK_STEER_SPEED, settings.ENGINE_TURN_TIME, settings.ENGINE_OBJECT_PLACEMENT_TIME, this);
@@ -58,6 +59,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     private final IRReceiver irReceiver = new IRReceiver(settings.IR_RECEIVER_PIN, pixel0, settings.IR_RECEIVER_BIT_THRESHOLD, this);
     private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, settings.LINE_SENSOR_THRESHOLD, settings.LINE_SENSOR_CEILING, settings.LINE_SENSORS_WAIT_AFTER_DEVIATION, settings.LINE_SENSORS_WAIT_BEFORE_CROSSROAD, settings.LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS, this);
     private final Bluetooth bluetoothReceiver = new Bluetooth(settings.BLUETOOTH_BAUDRATE, this);
+    private final Button button = new Button(0, this);
 
 
     // Whether the BoeBot is listening on commands. It will only be true if the BoeBot is standing
@@ -96,11 +98,22 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
      * @author Simon
      */
     private void init() {
+        updatables.add(engine);
+        updatables.add(pixel0);
+        updatables.add(pixel1);
+        updatables.add(pixel2);
+        updatables.add(pixel3);
+        updatables.add(pixel4);
+        updatables.add(pixel5);
+        updatables.add(buzzer);
         updatables.add(ultrasonicClose);
+        updatables.add(ultrasonicFar);
         updatables.add(irReceiver);
         updatables.add(lineSensors);
-        updatables.add(engine);
         updatables.add(bluetoothReceiver);
+        updatables.add(button);
+
+        enableEmergencyBrake();
     }
 
     /**
@@ -376,9 +389,11 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     @Override
     public void onButtonEvent() {
         if (emergencyBrakeEnabled) {
-            disableEmergencyBrake();
+//            disableEmergencyBrake();
+            System.out.println("Button toggled off");
         } else {
-            enableEmergencyBrake();
+//            enableEmergencyBrake();
+            System.out.println("Button toggled on");
         }
     }
 

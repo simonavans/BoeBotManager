@@ -50,6 +50,8 @@ public class IRReceiver implements Updatable {
 
             String pulseCode = "";
 
+            System.out.println("signal");
+
             // Loop through all bits in the code
             for (int i = 0; i < 12; i++) {
                 if (BoeBot.pulseIn(pinNumber, false, 20000) < bitThreshold) {

@@ -19,7 +19,7 @@ public class Gripper {
         this.openFrequency = openFrequency;
         this.closeFrequency = closeFrequency;
 
-        open();
+        gripper.update(2000);
     }
 
     /**

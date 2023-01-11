@@ -63,4 +63,8 @@ public class LineSensor implements Updatable, Sensor {
         return BoeBot.analogRead(pinNumber) >= threshold &&
                 BoeBot.analogRead(pinNumber) < ceiling;
     }
+
+    public void log() {
+        System.out.println(BoeBot.analogRead(pinNumber) + ": " + pinNumber);
+    }
 }
