@@ -7,7 +7,7 @@ import hardware.PinRegistry;
 
 /**
  * Class for a basic breadboard LED (single color, digital signal) on the BoeBot.
- * @author Simon de Cock
+ * TODO remove this class?
  */
 public class BasicLED {
     private final int pinNumber;
@@ -21,10 +21,20 @@ public class BasicLED {
         this.pinNumber = pinNumber;
     }
 
+    /**
+     * Turns on the LED.
+     *
+     * @author Simon
+     */
     public void turnOn() {
         BoeBot.digitalWrite(pinNumber, true);
     }
 
+    /**
+     * Turns off the LED.
+     *
+     * @author Simon
+     */
     public void turnOff() {
         BoeBot.digitalWrite(pinNumber, false);
     }
@@ -34,8 +44,8 @@ public class BasicLED {
      * does not block the run method in RobotMain when called. Rather, this method relies on
      * being continuously called in the run method to check when it should turn on or off.
      * @param milliseconds How long a full cycle (on and off time combined) should last.
-     * @author Simon de Cock
-     * TODO remove this class?
+     *
+     * @author Simon
      */
     public void blink(int milliseconds) {
         if (blinkMethodTimer == null) {
@@ -65,7 +75,8 @@ public class BasicLED {
     /**
      * Dims the LED using pulse width modulation (PWM).
      * @param strength How much the LED should be dimmed. Goes from 0 (off) to 255 (fully on).
-     * @author Simon de Cock
+     *
+     * @author Simon
      */
     public void dim(int strength) {
         if (strength < 0 || strength > 255) {

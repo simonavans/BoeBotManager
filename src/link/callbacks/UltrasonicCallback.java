@@ -3,7 +3,9 @@ package link.callbacks;
 import hardware.inputdevices.sensor.UltrasonicSensor;
 
 /**
- * Interface that is called by any sensor and received by RobotMain.
+ * Used for communication between classes UltrasonicSensor and RobotMain
+ *
+ * @author Simon
  */
 public interface UltrasonicCallback {
     void onUltrasonicSensorEvent(UltrasonicSensor source);

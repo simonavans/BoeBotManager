@@ -22,15 +22,24 @@ public class Gripper {
         open();
     }
 
+    /**
+     * @author Simon
+     */
     public boolean isOpened() {
         return isOpened;
     }
 
+    /**
+     * @author Simon
+     */
     public void open() {
         gripper.update(openFrequency);
         isOpened = true;
     }
 
+    /**
+     * @author Simon
+     */
     public void close() {
         gripper.update(closeFrequency);
         isOpened = false;

@@ -1,7 +1,9 @@
 package link.callbacks;
 
 /**
- * Interface that is called by the IRReceiver class and received by RobotMain.
+ * Used for communication between classes IRReceiver and RobotMain
+ *
+ * @author Simon
  */
 public interface IRReceiverCallback {
     void onIRReceiverEvent(int receiverCode);

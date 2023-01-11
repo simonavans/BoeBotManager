@@ -6,7 +6,10 @@ import TI.PinMode;
 import java.util.HashMap;
 
 /**
- * Manages all pins in use by the hardware
+ * Manages all pins in use by the hardware. It can detect hardware
+ * being assigned to the same pin and check for valid pin numbers.
+ * Apart from input and output pin numbers, it can also manage ADC
+ * pins and Neopixel led numbers.
  */
 public class PinRegistry {
     private static HashMap<Integer, String> pins = new HashMap<>();
@@ -15,7 +18,9 @@ public class PinRegistry {
      * Registers pins to use by hardware on the BoeBot.
      * @param pinNumbers an array of pin numbers to register.
      * @param pinModes an array of pin modes in the same order as the
-     *                 pin numbers in the pinNumbers parameter
+     *                 pin numbers in the pinNumbers parameter.
+     *
+     * @author Simon
      */
     public static void registerPins(int[] pinNumbers, String[] pinModes) {
         if (pinNumbers.length != pinModes.length) {
@@ -30,11 +35,13 @@ public class PinRegistry {
         int pinNumber;
         String pinMode;
 
+        // Loop through pin numbers and check them
         for (int i = 0; i < pinNumbers.length; i++) {
             pinNumber = pinNumbers[i];
             pinMode = pinModes[i];
 
             checkPin(pinNumber, pinMode);
+
             // Pins are all correct by this point
             pins.put(pinNumber, pinMode);
 
@@ -54,6 +61,8 @@ public class PinRegistry {
      * on the BoeBot.
      * @param pinNumber the pin number to check.
      * @param pinMode the pin mode to check.
+     *
+     * @author Simon
      */
     private static void checkPin(int pinNumber, String pinMode) {
         switch(pinMode) {

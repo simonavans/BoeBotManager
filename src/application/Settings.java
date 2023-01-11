@@ -20,7 +20,7 @@ class Settings {
     final int LINE_SENSOR_CEILING;
     final int LINE_SENSORS_WAIT_AFTER_DEVIATION;
     final int LINE_SENSORS_WAIT_BEFORE_CROSSROAD;
-    final int LINE_SENSORS_DELAY_AFTER_CROSSROAD;
+    final int LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS;
     final int BLUETOOTH_BAUDRATE;
     final int GRIPPER_OPEN_FREQUENCY;
     final int GRIPPER_CLOSE_FREQUENCY;
@@ -94,9 +94,19 @@ class Settings {
      *                                          Setting this value too high may result in too infrequent deviation
      *                                          detection, also meaning losing track of the line.
      *
-     * @param LINE_SENSORS_WAIT_BEFORE_CROSSROAD
+     * @param LINE_SENSORS_WAIT_BEFORE_CROSSROAD when the BoeBot's line sensors detect a crossroad, the BoeBot cannot
+     *                                           stop yet. If it would, it would end up slightly before the crossroad,
+     *                                           meaning that there would be a greater chance that the bot would lose
+     *                                           track of the line. To prevent this, the bot needs to wait before stopping
+     *                                           to end up exactly at the crossroad.
      *
-     * @param LINE_SENSORS_DELAY_AFTER_CROSSROAD
+     * @param LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS how long the line sensors should wait after enabling when the
+     *                                                  BoeBot starts driving backwards. When the bot wants to place
+     *                                                  an object, its position is on a crossroad. To prevent detecting
+     *                                                  the crossroad that the BoeBot is already on when driving
+     *                                                  backwards, the line sensors need a delay long enough so that
+     *                                                  the line sensors only activate when the crossroad it was on has
+     *                                                  been passed.
      *
      * @param BLUETOOTH_BAUDRATE the baudrate used by the bluetooth module.
      *
@@ -136,7 +146,7 @@ class Settings {
             // IR Receiver
             int IR_RECEIVER_BIT_THRESHOLD,
             // Line Sensor(s)
-            int LINE_SENSOR_THRESHOLD, int LINE_SENSOR_CEILING, int LINE_SENSORS_WAIT_AFTER_DEVIATION, int LINE_SENSORS_WAIT_BEFORE_CROSSROAD, int LINE_SENSORS_DELAY_AFTER_CROSSROAD,
+            int LINE_SENSOR_THRESHOLD, int LINE_SENSOR_CEILING, int LINE_SENSORS_WAIT_AFTER_DEVIATION, int LINE_SENSORS_WAIT_BEFORE_CROSSROAD, int LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS,
             // Bluetooth
             int BLUETOOTH_BAUDRATE,
             // Gripper
@@ -158,7 +168,7 @@ class Settings {
         this.LINE_SENSOR_CEILING = LINE_SENSOR_CEILING;
         this.LINE_SENSORS_WAIT_AFTER_DEVIATION = LINE_SENSORS_WAIT_AFTER_DEVIATION;
         this.LINE_SENSORS_WAIT_BEFORE_CROSSROAD = LINE_SENSORS_WAIT_BEFORE_CROSSROAD;
-        this.LINE_SENSORS_DELAY_AFTER_CROSSROAD = LINE_SENSORS_DELAY_AFTER_CROSSROAD;
+        this.LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS = LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS;
         this.BLUETOOTH_BAUDRATE = BLUETOOTH_BAUDRATE;
         this.GRIPPER_OPEN_FREQUENCY = GRIPPER_OPEN_FREQUENCY;
         this.GRIPPER_CLOSE_FREQUENCY = GRIPPER_CLOSE_FREQUENCY;

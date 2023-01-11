@@ -6,7 +6,7 @@ import hardware.PinRegistry;
 import link.Updatable;
 
 /**
- * Class for a breadboard Button on the BoeBot.
+ * Class for a breadboard button on the BoeBot.
  */
 public class Button implements Updatable {
     private final int pinNumber;
@@ -20,6 +20,12 @@ public class Button implements Updatable {
         this.callback = callback;
     }
 
+    /**
+     * Only when the button is toggled on or of, this method will send a callback
+     * to RobotMain.
+     *
+     * @author Simon
+     */
     @Override
     public void update() {
         if (!BoeBot.digitalRead(pinNumber)) {

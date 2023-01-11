@@ -8,8 +8,6 @@ import link.Updatable;
 /**
  * Class for one line sensor, which can detect the brightness of a surface. The BoeBot uses three
  * of these sensors to be able to follow a black line on a white surface.
- *
- * @author Simon
  */
 public class LineSensor implements Updatable, Sensor {
     private final int pinNumber;
@@ -38,6 +36,12 @@ public class LineSensor implements Updatable, Sensor {
         this.previouslyDetectedLine = false;
     }
 
+    /**
+     * Checks whether this line sensor's threshold has been overcome, and calls back to
+     * the class LineSensors
+     *
+     * @author Simon
+     */
     @Override
     public void update() {
         if (isOnOrOverThreshold() && !previouslyDetectedLine) {
@@ -49,6 +53,11 @@ public class LineSensor implements Updatable, Sensor {
         }
     }
 
+    /**
+     * @return whether the threshold was reached
+     *
+     * @author Simon
+     */
     @Override
     public boolean isOnOrOverThreshold() {
         return BoeBot.analogRead(pinNumber) >= threshold &&

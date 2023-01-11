@@ -1,7 +1,10 @@
 package link.callbacks;
 
-import hardware.inputdevices.Button;
-
+/**
+ * Used for communication between classes Button and RobotMain
+ *
+ * @author Simon
+ */
 public interface ButtonCallback {
     void onButtonEvent();
 }

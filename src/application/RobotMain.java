@@ -56,7 +56,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     private final UltrasonicSensor ultrasonicClose = new UltrasonicSensor(settings.ULTRASONIC_CLOSE_INPUT_PIN, settings.ULTRASONIC_CLOSE_OUTPUT_PIN, settings.ULTRASONIC_CLOSE_THRESHOLD, pixel2, this);
     private final UltrasonicSensor ultrasonicFar = new UltrasonicSensor(settings.ULTRASONIC_FAR_INPUT_PIN, settings.ULTRASONIC_FAR_OUTPUT_PIN, settings.ULTRASONIC_FAR_THRESHOLD, null, this);
     private final IRReceiver irReceiver = new IRReceiver(settings.IR_RECEIVER_PIN, pixel0, settings.IR_RECEIVER_BIT_THRESHOLD, this);
-    private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, settings.LINE_SENSOR_THRESHOLD, settings.LINE_SENSOR_CEILING, settings.LINE_SENSORS_WAIT_AFTER_DEVIATION, settings.LINE_SENSORS_WAIT_BEFORE_CROSSROAD, settings.LINE_SENSORS_DELAY_AFTER_CROSSROAD, this);
+    private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, settings.LINE_SENSOR_THRESHOLD, settings.LINE_SENSOR_CEILING, settings.LINE_SENSORS_WAIT_AFTER_DEVIATION, settings.LINE_SENSORS_WAIT_BEFORE_CROSSROAD, settings.LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS, this);
     private final Bluetooth bluetoothReceiver = new Bluetooth(settings.BLUETOOTH_BAUDRATE, this);
 
 
@@ -144,7 +144,6 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
         engine.brake();
 
         if (engine.isInReverse()) {
-            engine.resetBackwardsTimer();
             pixel1.resetBlink();
             buzzer.resetRepeatingBeep();
 
@@ -303,7 +302,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
                 case "Application: Place":
                     // Activate line sensors only after a delay. Otherwise, the line sensors would
                     // detect the crossroad it is currently on as the next crossroad.
-                    lineSensors.delayedEnable();
+                    lineSensors.delayWhenDrivingBackwards();
                     engine.driveBackwardsUntilCrossroad();
                     pixel1.blink(new Color(100, 100, 100), 10000, 20, false);
                     buzzer.repeatingBeep(10000, 20, false);
