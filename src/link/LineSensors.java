@@ -36,7 +36,8 @@ public class LineSensors implements Updatable, LineSensorCallback {
     // BoeBot can not run its code for when the bot deviates
     // from the line. This is to prevent accidental detection
     // of a deviation, when in reality it is a crossroad.
-    private boolean detectedCrossroad;
+    private boolean detectedCrossroad = false;
+    private boolean isAlreadyDrivingStraight = false;
 
     private boolean enabled;
     private Timer delayedEnablingTimer;
@@ -69,23 +70,35 @@ public class LineSensors implements Updatable, LineSensorCallback {
             sensorMiddle.update();
             sensorRight.update();
 
-            // If both left and right see no line, that
-            // means that the bot can just drive straight.
-            if (!seesLineStates[0] && !seesLineStates[2]) {
-                // If a crossroad was just detected, at
-                // this point there is no crossroad anymore.
-                // So, this variable can be set to false.
-                detectedCrossroad = false;
-                callback.onDriveStraight();
-                return;
-            }
-
             // If there was a before crossroad timer and it timed out, then
             // the BoeBot is exactly on a crossroad. Therefore, call
             // onDetectCrossroad().
             if (beforeCrossroadTimer != null && beforeCrossroadTimer.timeout()) {
                 beforeCrossroadTimer = null;
+                detectedCrossroad = false;
+                enabled = false;
+                isAlreadyDrivingStraight = false;
                 callback.onDetectCrossroad();
+                return;
+            }
+
+            // If at this point a crossroad was detected, we don't wanna
+            // check for deviations or whether we found a crossroad, because
+            // the BoeBot is going to stop soon anyway.
+            if (detectedCrossroad) {
+                // Set deviation timers to null, because we're not going to
+                // check for deviations anymore.
+                deviateLeftTimer = null;
+                deviateRightTimer = null;
+                return;
+            }
+
+            // If both left and right see no line, that means that the bot can just
+            // drive straight. But only if it isn't already driving straight, to prevent
+            // constantly calling back when there is no deviation or crossroad.
+            if (!seesLineStates[0] && !seesLineStates[2] && !isAlreadyDrivingStraight) {
+                isAlreadyDrivingStraight = true;
+                callback.onDriveStraight();
                 return;
             }
 
@@ -105,8 +118,9 @@ public class LineSensors implements Updatable, LineSensorCallback {
             // If the timer for deviating left timed out, and while it was
             // running, a crossroad was never detected. This means that
             // the deviation was in fact a deviation and not a crossroad.
-            else if (deviateLeftTimer.timeout() && !detectedCrossroad) {
+            else if (deviateLeftTimer.timeout()) {
                 deviateLeftTimer = null;
+                isAlreadyDrivingStraight = false;
                 callback.onDeviate(true);
                 return;
             }
@@ -127,8 +141,9 @@ public class LineSensors implements Updatable, LineSensorCallback {
             // If the timer for deviating right timed out, and while it was
             // running, a crossroad was never detected. This means that
             // the deviation was in fact a deviation and not a crossroad.
-            else if (deviateRightTimer.timeout() && !detectedCrossroad) {
+            else if (deviateRightTimer.timeout()) {
                 deviateRightTimer = null;
+                isAlreadyDrivingStraight = false;
                 callback.onDeviate(false);
                 return;
             }
@@ -147,6 +162,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
                 // it now needs to drive straight. Otherwise, the Boebot will
                 // turn too far while the before crossroad timer is running.
                 // This means that it can end up in the wrong place when it brakes.
+                isAlreadyDrivingStraight = true;
                 callback.onDriveStraight();
             }
         }
@@ -218,17 +234,11 @@ public class LineSensors implements Updatable, LineSensorCallback {
 
     /**
      * @author Simon
+     * @param isEnabled whether the line sensors should be enabled or not
      */
-    public void enable() {
+    public void setEnabled(boolean isEnabled) {
         delayedEnablingTimer = null;
-        enabled = true;
-    }
-
-    /**
-     * @author Simon
-     */
-    public void disable() {
-        delayedEnablingTimer = null;
-        enabled = false;
+        detectedCrossroad = false;
+        enabled = isEnabled;
     }
 }

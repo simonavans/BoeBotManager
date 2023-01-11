@@ -138,7 +138,6 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
      */
     @Override
     public void onDetectCrossroad() {
-        lineSensors.disable();
         ultrasonicClose.setEnabled(false);
         ultrasonicFar.setEnabled(false);
         engine.brake();
@@ -265,7 +264,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             // crossroad. The application recalculates the route.
             case "Application: Uncharted":
                 engine.drive(true);
-                lineSensors.enable();
+                lineSensors.setEnabled(true);
                 pixel1.blink(new Color(100, 0, 0), 10000, 20, false);
                 buzzer.repeatingBeep(10000, 20, false);
                 return;
@@ -275,7 +274,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             switch (command) {
                 // The BoeBot is instructed to go to the next crossroad in front of itself
                 case "Application: Forward":
-                    lineSensors.enable();
+                    lineSensors.setEnabled(true);
                     engine.drive(false);
                     ultrasonicClose.setEnabled(true);
                     ultrasonicFar.setEnabled(true);
@@ -389,7 +388,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
      */
     private void enableEmergencyBrake() {
         emergencyBrakeEnabled = true;
-        lineSensors.disable();
+        lineSensors.setEnabled(false);
         ultrasonicClose.setEnabled(false);
         engine.brake();
         bluetoothReceiver.transmitCommand("Boebot: Brake");
