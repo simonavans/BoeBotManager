@@ -114,15 +114,15 @@ class Settings {
      *
      * @param GRIPPER_CLOSE_FREQUENCY the frequency at which the gripper closes.
      *
-     * @param ULTRASONIC_CLOSE_INPUT_PIN input pin of the ultrasonic sensor responsible for detecting objects that have
+     * @param ULTRASONIC_CLOSE_ECHO_PIN input pin of the ultrasonic sensor responsible for detecting objects that have
      *                                   to be grabbed.
      *
-     * @param ULTRASONIC_CLOSE_OUTPUT_PIN output pin of the ultrasonic sensor responsible for detecting objects that
+     * @param ULTRASONIC_CLOSE_TRIGGER_PIN output pin of the ultrasonic sensor responsible for detecting objects that
      *                                    have to be grabbed.
      *
-     * @param ULTRASONIC_FAR_INPUT_PIN input pin of the ultrasonic sensor responsible for detecting unknown objects.
+     * @param ULTRASONIC_FAR_ECHO_PIN input pin of the ultrasonic sensor responsible for detecting unknown objects.
      *
-     * @param ULTRASONIC_FAR_OUTPUT_PIN output pin of the ultrasonic sensor responsible for detecting unknown objects.
+     * @param ULTRASONIC_FAR_TRIGGER_PIN output pin of the ultrasonic sensor responsible for detecting unknown objects.
      *
      * @param LEFT_WHEEL_PIN the pin used for controlling the left wheel.
      *
@@ -152,7 +152,7 @@ class Settings {
             // Gripper
             int GRIPPER_OPEN_FREQUENCY, int GRIPPER_CLOSE_FREQUENCY,
             // Pins
-            int ULTRASONIC_CLOSE_INPUT_PIN, int ULTRASONIC_CLOSE_OUTPUT_PIN, int ULTRASONIC_FAR_INPUT_PIN, int ULTRASONIC_FAR_OUTPUT_PIN, int LEFT_WHEEL_PIN, int RIGHT_WHEEL_PIN, int GRIPPER_PIN, int IR_RECEIVER_PIN, int[] LINE_SENSOR_ADC_PINS, int BUZZER_PIN
+            int ULTRASONIC_CLOSE_ECHO_PIN, int ULTRASONIC_CLOSE_TRIGGER_PIN, int ULTRASONIC_FAR_ECHO_PIN, int ULTRASONIC_FAR_TRIGGER_PIN, int LEFT_WHEEL_PIN, int RIGHT_WHEEL_PIN, int GRIPPER_PIN, int IR_RECEIVER_PIN, int[] LINE_SENSOR_ADC_PINS, int BUZZER_PIN
     ) {
         this.ROBOTMAIN_NUDGE_FORWARD_TIME = ROBOTMAIN_NUDGE_FORWARD_TIME;
         this.ULTRASONIC_CLOSE_THRESHOLD = ULTRASONIC_CLOSE_THRESHOLD;
@@ -172,10 +172,10 @@ class Settings {
         this.BLUETOOTH_BAUDRATE = BLUETOOTH_BAUDRATE;
         this.GRIPPER_OPEN_FREQUENCY = GRIPPER_OPEN_FREQUENCY;
         this.GRIPPER_CLOSE_FREQUENCY = GRIPPER_CLOSE_FREQUENCY;
-        this.ULTRASONIC_CLOSE_INPUT_PIN = ULTRASONIC_CLOSE_INPUT_PIN;
-        this.ULTRASONIC_CLOSE_OUTPUT_PIN = ULTRASONIC_CLOSE_OUTPUT_PIN;
-        this.ULTRASONIC_FAR_INPUT_PIN = ULTRASONIC_FAR_INPUT_PIN;
-        this.ULTRASONIC_FAR_OUTPUT_PIN = ULTRASONIC_FAR_OUTPUT_PIN;
+        this.ULTRASONIC_CLOSE_INPUT_PIN = ULTRASONIC_CLOSE_ECHO_PIN;
+        this.ULTRASONIC_CLOSE_OUTPUT_PIN = ULTRASONIC_CLOSE_TRIGGER_PIN;
+        this.ULTRASONIC_FAR_INPUT_PIN = ULTRASONIC_FAR_ECHO_PIN;
+        this.ULTRASONIC_FAR_OUTPUT_PIN = ULTRASONIC_FAR_TRIGGER_PIN;
         this.LEFT_WHEEL_PIN = LEFT_WHEEL_PIN;
         this.RIGHT_WHEEL_PIN = RIGHT_WHEEL_PIN;
         this.GRIPPER_PIN = GRIPPER_PIN;
