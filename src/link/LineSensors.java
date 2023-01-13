@@ -5,8 +5,6 @@ import application.RobotMain;
 import hardware.inputdevices.sensor.LineSensor;
 import link.callbacks.LineSensorCallback;
 
-import java.util.Arrays;
-
 /**
  * This class sits in between the LineSensor and RobotMain classes. It directly
  * controls the three line sensors on the BoeBot and, using this information,
@@ -45,16 +43,16 @@ public class LineSensors implements Updatable, LineSensorCallback {
     private Timer delayedEnablingTimer;
 
     public LineSensors(int[] pinNumbers, int lineSensorThreshold, int lineSensorCeiling, int waitAfterDeviation, int waitBeforeCrossroad, int waitAfterDrivingBackwards, RobotMain callback) {
-        sensorLeft = new LineSensor(pinNumbers[0], lineSensorThreshold, lineSensorCeiling, this);
-        sensorMiddle = new LineSensor(pinNumbers[1], lineSensorThreshold, lineSensorCeiling, this);
-        sensorRight = new LineSensor(pinNumbers[2], lineSensorThreshold, lineSensorCeiling, this);
+        sensorLeft = new LineSensor(pinNumbers[0], lineSensorThreshold, lineSensorCeiling);
+        sensorMiddle = new LineSensor(pinNumbers[1], lineSensorThreshold, lineSensorCeiling);
+        sensorRight = new LineSensor(pinNumbers[2], lineSensorThreshold, lineSensorCeiling);
 
         this.waitAfterDeviation = waitAfterDeviation;
         this.waitBeforeCrossroad = waitBeforeCrossroad;
         this.waitAfterDrivingBackwards = waitAfterDrivingBackwards;
         this.callback = callback;
 
-        this.enabled = true;
+        this.enabled = false;
     }
 
     /**
@@ -67,11 +65,19 @@ public class LineSensors implements Updatable, LineSensorCallback {
     @Override
     public void update() {
         if (enabled) {
-            // Give line sensors the most up-to-date value
-            sensorLeft.update();
-            sensorMiddle.update();
-            sensorRight.update();
-            System.out.println(Arrays.toString(seesLineStates));
+            // Give seesLineStates the most up-to-date value from line sensors
+            seesLineStates = new boolean[] {
+                    sensorLeft.isOnOrOverThreshold(),
+                    sensorMiddle.isOnOrOverThreshold(),
+                    sensorRight.isOnOrOverThreshold()
+            };
+
+            //fixme debugging, remove in final version
+            if (seesLineStates[0] && seesLineStates[1] && seesLineStates[2]) {
+                System.out.println(sensorLeft.value() + "\t" +
+                        sensorMiddle.value() + "\t" +
+                        sensorRight.value());
+            }
 
             // If there was a before crossroad timer and it timed out, then
             // the BoeBot is exactly on a crossroad. Therefore, call
@@ -105,6 +111,25 @@ public class LineSensors implements Updatable, LineSensorCallback {
                 return;
             }
 
+            // If all of the line sensor see a black line, that means for sure
+            // that the BoeBot came across a crossroad.
+            if (seesLineStates[0] && seesLineStates[1] && seesLineStates[2]) {
+                detectedCrossroad = true;
+
+                // Delays the callback to RobotMain to make sure the bot drives
+                // just a little further to end up exactly at the crossroad.
+                beforeCrossroadTimer = new Timer(waitBeforeCrossroad);
+                beforeCrossroadTimer.mark();
+
+                // If the BoeBot was currently turning because it saw a deviation,
+                // it now needs to drive straight. Otherwise, the Boebot will
+                // turn too far while the before crossroad timer is running.
+                // This means that it can end up in the wrong place when it brakes.
+                isAlreadyDrivingStraight = true;
+                callback.onDriveStraight();
+                return;
+            }
+
             // If no timer for deviating left is defined previously
             if (deviateLeftTimer == null) {
                 // Check if now the BoeBot does in fact detect
@@ -116,6 +141,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
                     // a deviation when it is actually a crossroad.
                     deviateLeftTimer = new Timer(waitAfterDeviation);
                     deviateLeftTimer.mark();
+                    return;
                 }
             }
             // If the timer for deviating left timed out, and while it was
@@ -148,25 +174,6 @@ public class LineSensors implements Updatable, LineSensorCallback {
                 deviateRightTimer = null;
                 isAlreadyDrivingStraight = false;
                 callback.onDeviate(false);
-                return;
-            }
-
-            // If all of the line sensor see a black line, that means for sure
-            // that the BoeBot came across a crossroad.
-            if (seesLineStates[0] && seesLineStates[1] && seesLineStates[2]) {
-                detectedCrossroad = true;
-
-                // Delays the callback to RobotMain to make sure the bot drives
-                // just a little further to end up exactly at the crossroad.
-                beforeCrossroadTimer = new Timer(waitBeforeCrossroad);
-                beforeCrossroadTimer.mark();
-
-                // If the BoeBot was currently turning because it saw a deviation,
-                // it now needs to drive straight. Otherwise, the Boebot will
-                // turn too far while the before crossroad timer is running.
-                // This means that it can end up in the wrong place when it brakes.
-                isAlreadyDrivingStraight = true;
-                callback.onDriveStraight();
             }
         }
         // If delayWhenDrivingBackwards() was called, and it timed out

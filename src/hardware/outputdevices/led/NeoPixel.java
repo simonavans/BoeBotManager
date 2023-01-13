@@ -47,22 +47,6 @@ public class NeoPixel implements Updatable {
     }
 
     /**
-     * @param ledNumber the ID of the neopixel represented by a number between 0 and 5, inclusive. Pixels 0, 1 and 2
-     *                  are located on the back of the BoeBot, while pixels 3, 4 and 5 are on the front.
-     *
-     * @author Simon
-     */
-    public NeoPixel(int ledNumber) {
-        if (ledNumber < 0 || ledNumber > 5) {
-            throw new IllegalArgumentException("Parameter ledNumber in Neopixel was not between 0 and 5 (inclusive) but was: " + ledNumber);
-        }
-
-        PinRegistry.registerPins(new int[]{ledNumber}, new String[]{"neopixel"});
-        this.ledNumber = ledNumber;
-        this.color = new Color(0);
-    }
-
-    /**
      * This method makes sure that the neopixel blinks at the correct time.
      *
      * @author Simon
@@ -74,7 +58,7 @@ public class NeoPixel implements Updatable {
 
         // If the blinking should stop
         if (blinkMethodTimer.timeout()) {
-            blinkMethodTimer = null;
+            resetBlink();
             return;
         }
 
@@ -106,6 +90,8 @@ public class NeoPixel implements Updatable {
      * @author Simon
      */
     public void turnOn(Color newColor) {
+        if (blinkMethodTimer != null) return;
+
         this.color = newColor;
         turnOn();
     }
@@ -149,10 +135,11 @@ public class NeoPixel implements Updatable {
         }
 
         if (blinkMethodTimer == null || highPriority) {
+            resetBlink();
             this.color = color;
+            blinkMilliseconds = milliseconds / (times * 2);
             blinkMethodTimer = new Timer(milliseconds);
             blinkMethodTimer.mark();
-            blinkMilliseconds = milliseconds / (times * 2);
 
             if (this.color.getRGB() == 0) {
                 System.out.println("Warning: neopixel on led number " + ledNumber + " is blinking, but its color is black!");
@@ -166,6 +153,9 @@ public class NeoPixel implements Updatable {
      * @author Simon
      */
     public void resetBlink() {
+        blinkTimer = null;
+        blinkState = false;
+        blinkMilliseconds = 0;
         blinkMethodTimer = null;
         this.turnOff();
     }

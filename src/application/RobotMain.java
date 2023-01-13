@@ -3,9 +3,9 @@ package application;
 import TI.BoeBot;
 import TI.Timer;
 import hardware.inputdevices.Bluetooth;
-import hardware.inputdevices.Button;
 import hardware.inputdevices.IRReceiver;
 import hardware.inputdevices.sensor.UltrasonicSensor;
+import hardware.inputdevices.Button;
 import hardware.outputdevices.Buzzer;
 import hardware.outputdevices.Engine;
 import hardware.outputdevices.Gripper;
@@ -38,9 +38,9 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             3, 100,
             25, 50, 0, -3, 1000, 500,
             800,
-            1400, 1800, 400, 700, 500,
-            115200, 2200, 1250,
-            4, 10, 5, 9, 13, 12, 15, 3, new int[]{0, 1, 2}, 14);
+            1450, 1800, 400, 700, 500,
+            115200, 2100, 1300,
+            4, 11, 5, 10, 13, 12, 15, 3, new int[]{0, 1, 2}, 14);
 
     // Output updatables, they alter the state of the BoeBot or log useful information to the user, like LEDs
     private final Engine engine = new Engine(settings.LEFT_WHEEL_PIN, settings.RIGHT_WHEEL_PIN, settings.ENGINE_NEUTRAL_OFFSET_LEFT, settings.ENGINE_NEUTRAL_OFFSET_RIGHT, settings.ENGINE_FORWARD_SPEED, settings.ENGINE_BACK_STEER_SPEED, settings.ENGINE_TURN_TIME, settings.ENGINE_OBJECT_PLACEMENT_TIME, this);
@@ -54,9 +54,9 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     private final Buzzer buzzer = new Buzzer(settings.BUZZER_PIN);
 
     // Input updatables, they check for input from the BoeBot's environment
-    private final UltrasonicSensor ultrasonicClose = new UltrasonicSensor(settings.ULTRASONIC_CLOSE_ECHO_PIN, settings.ULTRASONIC_CLOSE_TRIGGER_PIN, settings.ULTRASONIC_CLOSE_THRESHOLD, pixel2, this);
+    private final UltrasonicSensor ultrasonicClose = new UltrasonicSensor(settings.ULTRASONIC_CLOSE_ECHO_PIN, settings.ULTRASONIC_CLOSE_TRIGGER_PIN, settings.ULTRASONIC_CLOSE_THRESHOLD, pixel0, this);
     private final UltrasonicSensor ultrasonicFar = new UltrasonicSensor(settings.ULTRASONIC_FAR_ECHO_PIN, settings.ULTRASONIC_FAR_TRIGGER_PIN, settings.ULTRASONIC_FAR_THRESHOLD, null, this);
-    private final IRReceiver irReceiver = new IRReceiver(settings.IR_RECEIVER_PIN, pixel0, settings.IR_RECEIVER_BIT_THRESHOLD, this);
+    private final IRReceiver irReceiver = new IRReceiver(settings.IR_RECEIVER_PIN, pixel2, settings.IR_RECEIVER_BIT_THRESHOLD, this);
     private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, settings.LINE_SENSOR_THRESHOLD, settings.LINE_SENSOR_CEILING, settings.LINE_SENSORS_WAIT_AFTER_DEVIATION, settings.LINE_SENSORS_WAIT_BEFORE_CROSSROAD, settings.LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS, this);
     private final Bluetooth bluetoothReceiver = new Bluetooth(settings.BLUETOOTH_BAUDRATE, this);
     private final Button button = new Button(0, this);
@@ -113,7 +113,6 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
         updatables.add(bluetoothReceiver);
         updatables.add(button);
 
-        enableEmergencyBrake();
     }
 
     /**
@@ -269,7 +268,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             // this code will run. Used for when the remote tries to move the BoeBot into an
             // obstruction, which is not allowed by the application.
             case "Application: Disallowed":
-                buzzer.repeatingBeep(500, 2, false);
+                buzzer.repeatingBeep(500, 3, false);
                 return;
 
             // When the application finds that the object which the BoeBot detected was not on the
@@ -351,10 +350,6 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
                 // Button: Ch+ (000010010000)
                 bluetoothReceiver.transmitCommand("Remote: Forward");
                 break;
-            case 17:
-                // Button: Ch- (100010010000)
-                bluetoothReceiver.transmitCommand("Remote: Backward");
-                break;
             case 18:
                 // Button: Vol+ > (010010010000)
                 bluetoothReceiver.transmitCommand("Remote: Right");
@@ -389,11 +384,9 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     @Override
     public void onButtonEvent() {
         if (emergencyBrakeEnabled) {
-//            disableEmergencyBrake();
-            System.out.println("Button toggled off");
+            disableEmergencyBrake();
         } else {
-//            enableEmergencyBrake();
-            System.out.println("Button toggled on");
+            enableEmergencyBrake();
         }
     }
 
@@ -402,16 +395,15 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
      * to enabled. It tells the application that the BoeBot has braked.
      */
     private void enableEmergencyBrake() {
+        if (emergencyBrakeEnabled) return;
+
         emergencyBrakeEnabled = true;
         lineSensors.setEnabled(false);
         ultrasonicClose.setEnabled(false);
         engine.brake();
-        bluetoothReceiver.transmitCommand("Boebot: Brake");
 
         // The poor Boebot starts to panic because it has no logic for what to do now
-        pixel0.blink(Color.RED, 300000, 600, true);
         pixel1.blink(Color.RED, 300000, 600, true);
-        pixel2.blink(Color.RED, 300000, 600, true);
         pixel3.blink(Color.RED, 300000, 600, true);
         pixel4.blink(Color.RED, 300000, 600, true);
         pixel5.blink(Color.RED, 300000, 600, true);
@@ -423,14 +415,12 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
      * to disabled. It tells the application that the BoeBot has resumed its tasks.
      */
     private void disableEmergencyBrake() {
+        if (!emergencyBrakeEnabled) return;
+
         emergencyBrakeEnabled = false;
         listeningForCommands = true;
 
-        if (gripper.isOpened()) ultrasonicClose.setEnabled(true);
-
-        pixel0.resetBlink();
         pixel1.resetBlink();
-        pixel2.resetBlink();
         pixel3.resetBlink();
         pixel4.resetBlink();
         pixel5.resetBlink();

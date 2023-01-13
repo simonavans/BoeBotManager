@@ -20,7 +20,7 @@ public class Buzzer implements Updatable {
     private Timer repeatingBeepTimer;
 
     // Whether the buzzer should currently beep or not
-    private boolean beepState;
+    private boolean beepState = false;
 
     // How long a beep should last
     private int beepDurationMilliseconds = 0;
@@ -45,9 +45,7 @@ public class Buzzer implements Updatable {
 
         // If the beeping should stop
         if (repeatingBeepMethodTimer.timeout()) {
-            repeatingBeepMethodTimer = null;
-            repeatingBeepTimer = null;
-            beepDurationMilliseconds = 0;
+            resetRepeatingBeep();
             return;
         }
 
@@ -87,6 +85,7 @@ public class Buzzer implements Updatable {
         }
 
         if (repeatingBeepMethodTimer == null || highPriority) {
+            resetRepeatingBeep();
             beepDurationMilliseconds = milliseconds / (times * 2);
             repeatingBeepMethodTimer = new Timer(milliseconds);
             repeatingBeepMethodTimer.mark();
@@ -99,6 +98,9 @@ public class Buzzer implements Updatable {
      * @author Simon
      */
     public void resetRepeatingBeep() {
+        repeatingBeepTimer = null;
+        beepState = false;
+        beepDurationMilliseconds = 0;
         repeatingBeepMethodTimer = null;
         pwm.update(0);
     }

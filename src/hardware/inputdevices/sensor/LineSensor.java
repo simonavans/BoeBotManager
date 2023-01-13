@@ -2,16 +2,13 @@ package hardware.inputdevices.sensor;
 
 import TI.BoeBot;
 import hardware.PinRegistry;
-import link.LineSensors;
-import link.Updatable;
 
 /**
  * Class for one line sensor, which can detect the brightness of a surface. The BoeBot uses three
  * of these sensors to be able to follow a black line on a white surface.
  */
-public class LineSensor implements Updatable, Sensor {
+public class LineSensor implements Sensor {
     private final int pinNumber;
-    private final LineSensors callback;
 
     // If this sensor reads values higher than or equal to the threshold, it notifies the
     // LineSensors class.
@@ -22,35 +19,11 @@ public class LineSensor implements Updatable, Sensor {
     // prevent this, this variable is used.
     private int ceiling;
 
-    // Whether the line sensor previously saw a line, so that it does not spam the callback class
-    // with the same state over and over again.
-    private boolean previouslyDetectedLine;
-
-    public LineSensor(int pinNumber, int threshold, int ceiling, LineSensors callback) {
+    public LineSensor(int pinNumber, int threshold, int ceiling) {
         PinRegistry.registerPins(new int[]{pinNumber}, new String[]{"adc"});
         this.pinNumber = pinNumber;
         this.threshold = threshold;
         this.ceiling = ceiling;
-        this.callback = callback;
-
-        this.previouslyDetectedLine = false;
-    }
-
-    /**
-     * Checks whether this line sensor's threshold has been overcome, and calls back to
-     * the class LineSensors
-     *
-     * @author Simon
-     */
-    @Override
-    public void update() {
-        if (isOnOrOverThreshold() && !previouslyDetectedLine) {
-            previouslyDetectedLine = true;
-            callback.onLineDetectedEvent(this);
-        } else if (previouslyDetectedLine) {
-            previouslyDetectedLine = false;
-            callback.onNoLineDetectedEvent(this);
-        }
     }
 
     /**
@@ -64,7 +37,8 @@ public class LineSensor implements Updatable, Sensor {
                 BoeBot.analogRead(pinNumber) < ceiling;
     }
 
-    public void log() {
-        System.out.println(BoeBot.analogRead(pinNumber) + ": " + pinNumber);
+    // fixme: for debugging, remove later
+    public String value() {
+        return BoeBot.analogRead(pinNumber) + " on " + pinNumber;
     }
 }
