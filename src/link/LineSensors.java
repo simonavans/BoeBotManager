@@ -52,7 +52,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
         this.waitAfterDrivingBackwards = waitAfterDrivingBackwards;
         this.callback = callback;
 
-        this.enabled = false;
+        this.enabled = true;
     }
 
     /**
@@ -73,11 +73,11 @@ public class LineSensors implements Updatable, LineSensorCallback {
             };
 
             //fixme debugging, remove in final version
-            if (seesLineStates[0] && seesLineStates[1] && seesLineStates[2]) {
-                System.out.println(sensorLeft.value() + "\t" +
-                        sensorMiddle.value() + "\t" +
-                        sensorRight.value());
-            }
+//            if (seesLineStates[0] && seesLineStates[1] && seesLineStates[2]) {
+//                System.out.println(sensorLeft.value() + "\t" +
+//                        sensorMiddle.value() + "\t" +
+//                        sensorRight.value());
+//            }
 
             // If there was a before crossroad timer and it timed out, then
             // the BoeBot is exactly on a crossroad. Therefore, call
@@ -85,9 +85,9 @@ public class LineSensors implements Updatable, LineSensorCallback {
             if (beforeCrossroadTimer != null && beforeCrossroadTimer.timeout()) {
                 beforeCrossroadTimer = null;
                 detectedCrossroad = false;
-                enabled = false;
+//                enabled = false;
                 isAlreadyDrivingStraight = false;
-                callback.onDetectCrossroad();
+//                callback.onDetectCrossroad();
                 return;
             }
 
@@ -176,7 +176,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
                 callback.onDeviate(false);
             }
         }
-        // If delayWhenDrivingBackwards() was called, and it timed out
+        // If delayEnabledWhenDrivingBackwards() was called, and it timed out
         else if (delayedEnablingTimer != null && delayedEnablingTimer.timeout()) {
             delayedEnablingTimer = null;
             enabled = true;
@@ -235,7 +235,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
      *
      * @author Simon
      */
-    public void delayWhenDrivingBackwards() {
+    public void delayEnabledWhenDrivingBackwards() {
         if (delayedEnablingTimer == null) {
             delayedEnablingTimer = new Timer(this.waitAfterDrivingBackwards);
             delayedEnablingTimer.mark();

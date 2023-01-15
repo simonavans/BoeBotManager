@@ -34,16 +34,36 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
 
     // Settings of the current BoeBot setup. Values may differ between BoeBots.
     private final Settings settings = new Settings(
-            200,
-            3, 100,
-            25, 50, 0, -3, 1000, 500,
+            // RobotMain
             800,
-            1450, 1800, 400, 700, 500,
-            115200, 2100, 1300,
-            4, 11, 5, 10, 13, 12, 15, 3, new int[]{0, 1, 2}, 14);
+            // Ultrasonic
+            3, 100,
+            // Engine
+            -2, -3, 35,
+            35, 40,
+            35, 40,
+            1200, 500,
+            // IR Receiver
+            800,
+            // Line Sensor(s)
+            1450, 1800, 400,
+            600, 1000,
+            // Bluetooth
+            115200,
+            // Gripper
+            2400, 1400,
+            // Pins
+            4, 11, 5, 10,
+            13, 12, 15, 3, 14, 0, new int[]{0, 1, 2});
+
 
     // Output updatables, they alter the state of the BoeBot or log useful information to the user, like LEDs
-    private final Engine engine = new Engine(settings.LEFT_WHEEL_PIN, settings.RIGHT_WHEEL_PIN, settings.ENGINE_NEUTRAL_OFFSET_LEFT, settings.ENGINE_NEUTRAL_OFFSET_RIGHT, settings.ENGINE_FORWARD_SPEED, settings.ENGINE_BACK_STEER_SPEED, settings.ENGINE_TURN_TIME, settings.ENGINE_OBJECT_PLACEMENT_TIME, this);
+    private final Engine engine = new Engine(settings.LEFT_WHEEL_PIN, settings.RIGHT_WHEEL_PIN,
+            settings.ENGINE_NEUTRAL_OFFSET_LEFT, settings.ENGINE_NEUTRAL_OFFSET_RIGHT,
+            settings.ENGINE_DRIVE_SPEED, settings.ENGINE_TURN_SPEED_FORWARD, settings.ENGINE_TURN_SPEED_BACKWARD,
+            settings.ENGINE_ADJUST_DIRECTION_SPEED_FORWARD, settings.ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD,
+            settings.ENGINE_TURN_TIME, settings.ENGINE_OBJECT_PLACEMENT_TIME, this);
+
     private final Gripper gripper = new Gripper(settings.GRIPPER_PIN, settings.GRIPPER_OPEN_FREQUENCY, settings.GRIPPER_CLOSE_FREQUENCY);
     private final NeoPixel pixel0 = new NeoPixel(0, Color.BLACK);
     private final NeoPixel pixel1 = new NeoPixel(1, Color.BLACK);
@@ -53,13 +73,21 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     private final NeoPixel pixel5 = new NeoPixel(5, Color.BLACK);
     private final Buzzer buzzer = new Buzzer(settings.BUZZER_PIN);
 
+
     // Input updatables, they check for input from the BoeBot's environment
-    private final UltrasonicSensor ultrasonicClose = new UltrasonicSensor(settings.ULTRASONIC_CLOSE_ECHO_PIN, settings.ULTRASONIC_CLOSE_TRIGGER_PIN, settings.ULTRASONIC_CLOSE_THRESHOLD, pixel0, this);
-    private final UltrasonicSensor ultrasonicFar = new UltrasonicSensor(settings.ULTRASONIC_FAR_ECHO_PIN, settings.ULTRASONIC_FAR_TRIGGER_PIN, settings.ULTRASONIC_FAR_THRESHOLD, null, this);
+    private final UltrasonicSensor ultrasonicClose = new UltrasonicSensor(settings.ULTRASONIC_CLOSE_ECHO_PIN,
+            settings.ULTRASONIC_CLOSE_TRIGGER_PIN, settings.ULTRASONIC_CLOSE_THRESHOLD, pixel0, this);
+
+    private final UltrasonicSensor ultrasonicFar = new UltrasonicSensor(settings.ULTRASONIC_FAR_ECHO_PIN,
+            settings.ULTRASONIC_FAR_TRIGGER_PIN, settings.ULTRASONIC_FAR_THRESHOLD, null, this);
+
     private final IRReceiver irReceiver = new IRReceiver(settings.IR_RECEIVER_PIN, pixel2, settings.IR_RECEIVER_BIT_THRESHOLD, this);
-    private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, settings.LINE_SENSOR_THRESHOLD, settings.LINE_SENSOR_CEILING, settings.LINE_SENSORS_WAIT_AFTER_DEVIATION, settings.LINE_SENSORS_WAIT_BEFORE_CROSSROAD, settings.LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS, this);
+    private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, settings.LINE_SENSOR_THRESHOLD,
+            settings.LINE_SENSOR_CEILING, settings.LINE_SENSORS_WAIT_AFTER_DEVIATION,
+            settings.LINE_SENSORS_WAIT_BEFORE_CROSSROAD, settings.LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS, this);
+
     private final Bluetooth bluetoothReceiver = new Bluetooth(settings.BLUETOOTH_BAUDRATE, this);
-    private final Button button = new Button(0, this);
+    private final Button button = new Button(settings.BUTTON_PIN, this);
 
 
     // Whether the BoeBot is listening on commands. It will only be true if the BoeBot is standing
@@ -113,6 +141,8 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
         updatables.add(bluetoothReceiver);
         updatables.add(button);
 
+        // Notification that the BoeBot code is running
+        buzzer.repeatingBeep(300, 2, true);
     }
 
     /**
@@ -131,6 +161,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             // If this Timer has timed out, meaning the BoeBot is now perfectly aligned
             // on the crossroad
             if (nudgeForwardTimer != null && nudgeForwardTimer.timeout()) {
+                nudgeForwardTimer = null;
                 engine.brake();
                 listeningForCommands = true;
                 bluetoothReceiver.transmitCommand("Boebot: Succeeded");
@@ -184,10 +215,10 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     public void onDeviate(boolean toLeft) {
         if (toLeft) {
             // Too far to the left, so BoeBot should turn right
-            engine.changeDirection(false);
+            engine.adjustDirection(false);
         } else {
             // Too far to the right, so BoeBot should turn left
-            engine.changeDirection(true);
+            engine.adjustDirection(true);
         }
     }
 
@@ -199,7 +230,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
      */
     @Override
     public void onDriveStraight() {
-        engine.drive(false);
+        engine.drive(engine.isInReverse());
     }
 
     /**
@@ -241,6 +272,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     public void onUltrasonicSensorEvent(UltrasonicSensor source) {
         if (source == ultrasonicClose) {
             ultrasonicClose.setEnabled(false);
+            System.out.println("closed");
             gripper.close();
         } else if (source == ultrasonicFar) {
             bluetoothReceiver.transmitCommand("Boebot: Object");
@@ -261,7 +293,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             // This command is received in emergency situations, after which the BoeBot will activate
             // its emergency brake.
             case "Application: Brake":
-                enableEmergencyBrake();
+                enableEmergencyBrake(false);
                 return;
 
             // If the IR remote asked for manual control, but it is disallowed by the application,
@@ -269,12 +301,16 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             // obstruction, which is not allowed by the application.
             case "Application: Disallowed":
                 buzzer.repeatingBeep(500, 3, false);
+                pixel3.blink(new Color(100, 0, 0), 500, 3, false);
+                pixel4.blink(new Color(100, 0, 0), 500, 3, false);
+                pixel5.blink(new Color(100, 0, 0), 500, 3, false);
                 return;
 
             // When the application finds that the object which the BoeBot detected was not on the
             // route, it sends this command. As a result, the bot tries to go to the previous
             // crossroad. The application recalculates the route.
             case "Application: Uncharted":
+                //todo give signal that there is an unknown object on the path
                 engine.drive(true);
                 lineSensors.setEnabled(true);
                 pixel1.blink(new Color(100, 0, 0), 10000, 20, false);
@@ -295,14 +331,14 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
                 // The BoeBot is instructed to make a left turn, but stays on the same crossroad
                 case "Application: Left":
                     // turn left
-                    pixel5.blink(Color.ORANGE, 1000, 2, false);
+                    pixel5.blink(Color.ORANGE, settings.ENGINE_TURN_TIME, 3, false);
                     engine.turn90(true);
                     break;
 
                 // The BoeBot is instructed to make a right turn, but stays on the same crossroad
                 case "Application: Right":
                     // turn right
-                    pixel3.blink(Color.ORANGE, 1000, 2, false);
+                    pixel3.blink(Color.ORANGE, settings.ENGINE_TURN_TIME, 3, false);
                     engine.turn90(false);
                     break;
 
@@ -313,7 +349,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
                 case "Application: Place":
                     // Activate line sensors only after a delay. Otherwise, the line sensors would
                     // detect the crossroad it is currently on as the next crossroad.
-                    lineSensors.delayWhenDrivingBackwards();
+                    lineSensors.delayEnabledWhenDrivingBackwards();
                     engine.driveBackwardsUntilCrossroad();
                     pixel1.blink(new Color(100, 100, 100), 10000, 20, false);
                     buzzer.repeatingBeep(10000, 20, false);
@@ -366,7 +402,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
                 // Button: Power (101010010000)
                 // Enabling the emergency brake is the only thing that the BoeBot processes
                 // directly after a command, because it is an emergency situation.
-                enableEmergencyBrake();
+                enableEmergencyBrake(true);
                 bluetoothReceiver.transmitCommand("Remote: Brake");
                 break;
             default:
@@ -386,7 +422,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
         if (emergencyBrakeEnabled) {
             disableEmergencyBrake();
         } else {
-            enableEmergencyBrake();
+            enableEmergencyBrake(true);
         }
     }
 
@@ -394,7 +430,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
      * This method contains everything that needs to happen when the emergency brake is set
      * to enabled. It tells the application that the BoeBot has braked.
      */
-    private void enableEmergencyBrake() {
+    private void enableEmergencyBrake(boolean notifyApplication) {
         if (emergencyBrakeEnabled) return;
 
         emergencyBrakeEnabled = true;
@@ -408,6 +444,10 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
         pixel4.blink(Color.RED, 300000, 600, true);
         pixel5.blink(Color.RED, 300000, 600, true);
         buzzer.repeatingBeep(300000, 600, true);
+
+        if (notifyApplication) {
+            bluetoothReceiver.transmitCommand("Boebot: Brake");
+        }
     }
 
     /**

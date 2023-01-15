@@ -13,7 +13,10 @@ public class Engine implements Updatable {
     private final int leftWheelNeutralOffset;
     private final int rightWheelNeutralOffset;
     private final int driveSpeed;
-    private final int backSteerSpeed;
+    private final int turnSpeedForward;
+    private final int turnSpeedBackward;
+    private final int adjustDirectionSpeedForward;
+    private final int adjustDirectionSpeedBackward;
     private final int turnTime;
     private final int objectPlacementTime;
     private Timer turnTimer;
@@ -27,14 +30,23 @@ public class Engine implements Updatable {
     // backwards.
     private boolean isInReverse;
 
-    public Engine(int leftWheelPin, int rightWheelPin, int leftWheelNeutralOffset, int rightWheelNeutralOffset, int driveSpeed, int backSteerSpeed, int turnTime, int objectPlacementTime, RobotMain callback) {
+    public Engine(int leftWheelPin, int rightWheelPin,
+                  int leftWheelNeutralOffset, int rightWheelNeutralOffset,
+                  int driveSpeed,
+                  int turnSpeedForward, int turnSpeedBackward,
+                  int adjustDirectionSpeedForward, int adjustDirectionSpeedBackward,
+                  int turnTime, int objectPlacementTime, RobotMain callback) {
         PinRegistry.registerPins(new int[]{leftWheelPin, rightWheelPin}, new String[]{"output", "output"});
         this.wheelLeft = new Servo(leftWheelPin);
         this.wheelRight = new Servo(rightWheelPin);
         this.leftWheelNeutralOffset = 1500 + leftWheelNeutralOffset;
         this.rightWheelNeutralOffset = 1500 + rightWheelNeutralOffset;
         this.driveSpeed = driveSpeed;
-        this.backSteerSpeed = -backSteerSpeed;
+        this.turnSpeedForward = turnSpeedForward;
+        // Force turnSpeedBackward to be negative
+        this.turnSpeedBackward = -Math.abs(turnSpeedBackward);
+        this.adjustDirectionSpeedForward = adjustDirectionSpeedForward;
+        this.adjustDirectionSpeedBackward = adjustDirectionSpeedBackward;
         this.turnTime = turnTime;
         this.objectPlacementTime = objectPlacementTime;
         this.callback = callback;
@@ -70,14 +82,14 @@ public class Engine implements Updatable {
     /**
      * Makes the BoeBot drive forward or backward, depending on whether
      * it is in reverse or not.
-     * @param isInReverse whether to reverse the BoeBot.
      *
+     * @param isInReverse whether to reverse the BoeBot.
      * @author Simon
      */
     public void drive(boolean isInReverse) {
         this.isInReverse = isInReverse;
         if (this.isInReverse) {
-            setWheelSpeed(driveSpeed, driveSpeed);
+            setWheelSpeed(-driveSpeed, -driveSpeed);
         } else {
             setWheelSpeed(driveSpeed, driveSpeed);
         }
@@ -90,27 +102,36 @@ public class Engine implements Updatable {
      *
      * @author Simon
      */
-    public void changeDirection(boolean toLeft) {
+    public void adjustDirection(boolean toLeft) {
         if (toLeft) {
-            setWheelSpeed(backSteerSpeed, driveSpeed);
+            if (isInReverse) {
+                setWheelSpeed(driveSpeed, turnSpeedBackward);
+            } else {
+                setWheelSpeed(turnSpeedBackward, driveSpeed);
+            }
         } else {
-            setWheelSpeed(driveSpeed, backSteerSpeed);
+            if (isInReverse) {
+                setWheelSpeed(turnSpeedBackward, driveSpeed);
+            } else {
+                setWheelSpeed(driveSpeed, turnSpeedBackward);
+
+            }
         }
     }
 
     /**
      * Makes the BoeBot turn 90 degrees using a Timer. When the Timer
      * runs out, it will call back to RobotMain (onCompletedTurn).
-     * @param toLeft whether to turn to the left or to the right.
      *
+     * @param toLeft whether to turn to the left or to the right.
      * @author Simon
      */
     public void turn90(boolean toLeft) {
         if (turnTimer == null) {
             if (toLeft) {
-                setWheelSpeed(backSteerSpeed, driveSpeed);
+                setWheelSpeed(turnSpeedBackward, driveSpeed);
             } else {
-                setWheelSpeed(driveSpeed, backSteerSpeed);
+                setWheelSpeed(driveSpeed, turnSpeedBackward);
             }
 
             turnTimer = new Timer(turnTime);
@@ -156,7 +177,7 @@ public class Engine implements Updatable {
      * @author Simon
      */
     public boolean isInReverse() {
-        return isInReverse;
+        return this.isInReverse;
     }
 
     /**
