@@ -41,7 +41,7 @@ class Settings {
 
     // todo comment on parameters
     /**
-     * Please note that all time units are in milliseconds.
+     * Please note that all time units in the following parameters are in milliseconds.
      *
      * @param ROBOTMAIN_NUDGE_FORWARD_TIME when the BoeBot's line sensors are right above a crossroad, this would be
      *                                     the time in milliseconds it takes for the bot to move forward just a bit,
@@ -57,31 +57,42 @@ class Settings {
      *                                 line sensors and the detected object!
      *
      * @param ENGINE_NEUTRAL_OFFSET_LEFT the speed at which the left wheel is completely motionless. This is usually at
-     *                                   value 1500, but may differ from wheel to wheel.
+     *                                   value 1500, but may differ from wheel to wheel. The value 1500 plus the value
+     *                                   of this parameter will determine the frequency at which the wheel is motionless.
      *
      * @param ENGINE_NEUTRAL_OFFSET_RIGHT the speed at which the right wheel is completely motionless. This is usually
-     *                                    at value 1500, but may differ from wheel to wheel.
+     *                                    at value 1500, but may differ from wheel to wheel. The value 1500 plus the value
+     *                                    of this parameter will determine the frequency at which the wheel is motionless.
      *
-     * @param ENGINE_DRIVE_SPEED the speed at which the engine drives forward and backward. It is also the speed at
-     *                             which either one of the wheels turns at. For example, when the BoeBot makes a left
-     *                             turn, the right wheel has this speed.
+     * @param ENGINE_DRIVE_SPEED the speed at which the engine drives forward and backward.
      *
-     * @param ENGINE_TURN_SPEED_FORWARD
+     * @param ENGINE_TURN_SPEED_FORWARD when the BoeBot turns, one wheel drives forward and the other drives backward.
+     *                                  For example, when the bot takes a left turn, the left wheel will drive backward
+     *                                  and the right wheel will drive forward. This parameter signifies the speed of the
+     *                                  wheel going forward.
      *
-     * @param ENGINE_TURN_SPEED_BACKWARD the speed at which either one of the wheels turns at. For example, when this is
-     *                                set to 50 and the BoeBot makes a left turn, the left wheel is set to have this
-     *                                speed, but rotates backwards (so 50 in the opposite direction of the other wheel,
-     *                                or -50).
+     * @param ENGINE_TURN_SPEED_BACKWARD when the BoeBot turns, one wheel drives forward and the other drives backward.
+     *                                   For example, when the bot takes a left turn, the left wheel will drive backward
+     *                                   and the right wheel will drive forward. This parameter signifies the speed of the
+     *                                   wheel going backward.
      *
-     * @param ENGINE_ADJUST_DIRECTION_SPEED_FORWARD
+     * @param ENGINE_ADJUST_DIRECTION_SPEED_FORWARD when the BoeBot deviated from the line and it has to adjust itself,
+     *                                              one wheel drives forward and the other one drives backward. For example,
+     *                                              when the bot needs to steer to the left to adjust, the left wheel will
+     *                                              drive backward and the right wheel will drive forward. This parameter
+     *                                              signifies the speed of the wheel going forward.
      *
-     * @param ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD
+     * @param ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD when the BoeBot deviated from the line and it has to adjust itself,
+     *                                               one wheel drives forward and the other one drives backward. For example,
+     *                                               when the bot needs to steer to the left to adjust, the left wheel will
+     *                                               drive backward and the right wheel will drive forward. This parameter
+     *                                               signifies the speed of the wheel going backward.
      *
      * @param ENGINE_TURN_TIME the time in milliseconds it takes the engine to make a 90 degree turn, using the forward
      *                         speed and back steer speed variables mentioned in this constructor.
      *
      * @param ENGINE_OBJECT_PLACEMENT_TIME when the BoeBot is positioned on a crossroad and wants to drop an object,
-     *                                     it first needs to drive backwards to drop the object in a way that it is
+     *                                     it first needs to drive backward to drop the object in a way that it is
      *                                     right on the crossroad. This is the time in milliseconds it takes for the
      *                                     bot to drop the object.
      *
@@ -145,7 +156,7 @@ class Settings {
      *
      * @param BUZZER_PIN the pin used for controlling the buzzer.
      *
-     * @param BUTTON_PIN
+     * @param BUTTON_PIN the pin used for controlling the button.
      *
      * @param LINE_SENSOR_ADC_PINS the pin used for controlling the line sensors.
      */
