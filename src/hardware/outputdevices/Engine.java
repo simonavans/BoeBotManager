@@ -17,6 +17,8 @@ public class Engine implements Updatable {
     private final int turnSpeedBackward;
     private final int adjustDirectionSpeedForward;
     private final int adjustDirectionSpeedBackward;
+    private final int adjustDirectionSpeedForwardReverse;
+    private final int adjustDirectionSpeedBackwardReverse;
     private final int turnTime;
     private final int objectPlacementTime;
     private Timer turnTimer;
@@ -35,6 +37,7 @@ public class Engine implements Updatable {
                   int driveSpeed,
                   int turnSpeedForward, int turnSpeedBackward,
                   int adjustDirectionSpeedForward, int adjustDirectionSpeedBackward,
+                  int adjustDirectionSpeedForwardReverse, int adjustDirectionSpeedBackwardReverse,
                   int turnTime, int objectPlacementTime, RobotMain callback) {
         PinRegistry.registerPins(new int[]{leftWheelPin, rightWheelPin}, new String[]{"output", "output"});
         this.wheelLeft = new Servo(leftWheelPin);
@@ -43,10 +46,11 @@ public class Engine implements Updatable {
         this.rightWheelNeutralOffset = 1500 + rightWheelNeutralOffset;
         this.driveSpeed = driveSpeed;
         this.turnSpeedForward = turnSpeedForward;
-        // Force turnSpeedBackward to be negative
-        this.turnSpeedBackward = -Math.abs(turnSpeedBackward);
+        this.turnSpeedBackward = turnSpeedBackward;
         this.adjustDirectionSpeedForward = adjustDirectionSpeedForward;
         this.adjustDirectionSpeedBackward = adjustDirectionSpeedBackward;
+        this.adjustDirectionSpeedForwardReverse = adjustDirectionSpeedForwardReverse;
+        this.adjustDirectionSpeedBackwardReverse = adjustDirectionSpeedBackwardReverse;
         this.turnTime = turnTime;
         this.objectPlacementTime = objectPlacementTime;
         this.callback = callback;
@@ -105,16 +109,15 @@ public class Engine implements Updatable {
     public void adjustDirection(boolean toLeft) {
         if (toLeft) {
             if (isInReverse) {
-                setWheelSpeed(driveSpeed, turnSpeedBackward);
+                setWheelSpeed(adjustDirectionSpeedForwardReverse, adjustDirectionSpeedBackwardReverse);
             } else {
-                setWheelSpeed(turnSpeedBackward, driveSpeed);
+                setWheelSpeed(adjustDirectionSpeedBackward, adjustDirectionSpeedForward);
             }
         } else {
             if (isInReverse) {
-                setWheelSpeed(turnSpeedBackward, driveSpeed);
+                setWheelSpeed(adjustDirectionSpeedBackwardReverse, adjustDirectionSpeedForwardReverse);
             } else {
-                setWheelSpeed(driveSpeed, turnSpeedBackward);
-
+                setWheelSpeed(adjustDirectionSpeedForward, adjustDirectionSpeedBackward);
             }
         }
     }
@@ -129,9 +132,9 @@ public class Engine implements Updatable {
     public void turn90(boolean toLeft) {
         if (turnTimer == null) {
             if (toLeft) {
-                setWheelSpeed(turnSpeedBackward, driveSpeed);
+                setWheelSpeed(turnSpeedBackward, turnSpeedForward);
             } else {
-                setWheelSpeed(driveSpeed, turnSpeedBackward);
+                setWheelSpeed(turnSpeedForward, turnSpeedBackward);
             }
 
             turnTimer = new Timer(turnTime);

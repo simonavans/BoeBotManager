@@ -35,23 +35,26 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     // Settings of the current BoeBot setup. Values may differ between BoeBots.
     private final Settings settings = new Settings(
             // RobotMain
-            800,
+            //todo remove delay successive deviations
+            800, 0000,
             // Ultrasonic
             3, 100,
             // Engine
             -2, -3, 35,
-            35, 40,
-            35, 40,
-            1200, 500,
+            25, -40,
+            25, -50,
+            30, 40,
+            1300, 800,
             // IR Receiver
             800,
             // Line Sensor(s)
-            1450, 1800, 400,
-            600, 1000,
+            1390, 1500, 1390,
+            1800, 300, 500,
+            500,
             // Bluetooth
             115200,
             // Gripper
-            2400, 1400,
+            2500, 500,
             // Pins
             4, 11, 5, 10,
             13, 12, 15, 3, 14, 0, new int[]{0, 1, 2});
@@ -62,6 +65,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             settings.ENGINE_NEUTRAL_OFFSET_LEFT, settings.ENGINE_NEUTRAL_OFFSET_RIGHT,
             settings.ENGINE_DRIVE_SPEED, settings.ENGINE_TURN_SPEED_FORWARD, settings.ENGINE_TURN_SPEED_BACKWARD,
             settings.ENGINE_ADJUST_DIRECTION_SPEED_FORWARD, settings.ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD,
+            settings.ENGINE_ADJUST_DIRECTION_SPEED_FORWARD_REVERSE, settings.ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD_REVERSE,
             settings.ENGINE_TURN_TIME, settings.ENGINE_OBJECT_PLACEMENT_TIME, this);
 
     private final Gripper gripper = new Gripper(settings.GRIPPER_PIN, settings.GRIPPER_OPEN_FREQUENCY, settings.GRIPPER_CLOSE_FREQUENCY);
@@ -82,8 +86,9 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             settings.ULTRASONIC_FAR_TRIGGER_PIN, settings.ULTRASONIC_FAR_THRESHOLD, null, this);
 
     private final IRReceiver irReceiver = new IRReceiver(settings.IR_RECEIVER_PIN, pixel2, settings.IR_RECEIVER_BIT_THRESHOLD, this);
-    private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS, settings.LINE_SENSOR_THRESHOLD,
-            settings.LINE_SENSOR_CEILING, settings.LINE_SENSORS_WAIT_AFTER_DEVIATION,
+    private final LineSensors lineSensors = new LineSensors(settings.LINE_SENSOR_ADC_PINS,
+            settings.LINE_SENSOR_THRESHOLD_LEFT, settings.LINE_SENSOR_THRESHOLD_MIDDLE, settings.LINE_SENSOR_THRESHOLD_RIGHT,
+            settings.LINE_SENSOR_CEILING, settings.LINE_SENSORS_WAIT_BEFORE_DEVIATION,
             settings.LINE_SENSORS_WAIT_BEFORE_CROSSROAD, settings.LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS, this);
 
     private final Bluetooth bluetoothReceiver = new Bluetooth(settings.BLUETOOTH_BAUDRATE, this);
@@ -208,17 +213,18 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
      * This is to verify that the bot has not accidentally detected part of a crossroad.
      * When this runs, the bot will try to align itself by steering back toward the line.
      *
-     * @param toLeft Whether a deviation to the left has occurred, or to the right.
+     * @param detectedByLeftSensor Whether a deviation was detected by the leftmost sensor,
+     *                             or the rightmost sensor.
      * @author Simon
      */
     @Override
-    public void onDeviate(boolean toLeft) {
-        if (toLeft) {
-            // Too far to the left, so BoeBot should turn right
-            engine.adjustDirection(false);
-        } else {
+    public void onDeviate(boolean detectedByLeftSensor) {
+        if (detectedByLeftSensor) {
             // Too far to the right, so BoeBot should turn left
             engine.adjustDirection(true);
+        } else {
+            // Too far to the left, so BoeBot should turn right
+            engine.adjustDirection(false);
         }
     }
 
@@ -240,8 +246,10 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
      */
     @Override
     public void onCompletedTurn() {
-        listeningForCommands = true;
-        bluetoothReceiver.transmitCommand("Boebot: Succeeded");
+        //todo comment
+        nudgeForwardTimer = new Timer(settings.ROBOTMAIN_NUDGE_FORWARD_TIME / 2);
+        nudgeForwardTimer.mark();
+        engine.drive(false);
     }
 
     /**
@@ -272,7 +280,6 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     public void onUltrasonicSensorEvent(UltrasonicSensor source) {
         if (source == ultrasonicClose) {
             ultrasonicClose.setEnabled(false);
-            System.out.println("closed");
             gripper.close();
         } else if (source == ultrasonicFar) {
             bluetoothReceiver.transmitCommand("Boebot: Object");

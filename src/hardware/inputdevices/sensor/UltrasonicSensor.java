@@ -43,7 +43,7 @@ public class UltrasonicSensor implements Updatable, Sensor {
         this.threshold = threshold;
         this.ultrasonicPixel = ultrasonicPixel;
         this.callback = callback;
-        this.enabled = true;
+        this.enabled = false;
 
         if (ultrasonicPixel != null) ultrasonicPixel.turnOn(new Color(100, 0, 0));
         measurementCooldown = new Timer(100);

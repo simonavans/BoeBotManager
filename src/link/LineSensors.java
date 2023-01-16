@@ -42,17 +42,17 @@ public class LineSensors implements Updatable, LineSensorCallback {
     private boolean enabled;
     private Timer delayedEnablingTimer;
 
-    public LineSensors(int[] pinNumbers, int lineSensorThreshold, int lineSensorCeiling, int waitAfterDeviation, int waitBeforeCrossroad, int waitAfterDrivingBackwards, RobotMain callback) {
-        sensorLeft = new LineSensor(pinNumbers[0], lineSensorThreshold, lineSensorCeiling);
-        sensorMiddle = new LineSensor(pinNumbers[1], lineSensorThreshold, lineSensorCeiling);
-        sensorRight = new LineSensor(pinNumbers[2], lineSensorThreshold, lineSensorCeiling);
+    public LineSensors(int[] pinNumbers, int lineSensorThresholdLeft, int lineSensorThresholdMiddle, int lineSensorThresholdRight, int lineSensorCeiling, int waitAfterDeviation, int waitBeforeCrossroad, int waitAfterDrivingBackwards, RobotMain callback) {
+        sensorLeft = new LineSensor(pinNumbers[0], lineSensorThresholdLeft, lineSensorCeiling);
+        sensorMiddle = new LineSensor(pinNumbers[1], lineSensorThresholdMiddle, lineSensorCeiling);
+        sensorRight = new LineSensor(pinNumbers[2], lineSensorThresholdRight, lineSensorCeiling);
 
         this.waitAfterDeviation = waitAfterDeviation;
         this.waitBeforeCrossroad = waitBeforeCrossroad;
         this.waitAfterDrivingBackwards = waitAfterDrivingBackwards;
         this.callback = callback;
 
-        this.enabled = true;
+        this.enabled = false;
     }
 
     /**
@@ -85,9 +85,9 @@ public class LineSensors implements Updatable, LineSensorCallback {
             if (beforeCrossroadTimer != null && beforeCrossroadTimer.timeout()) {
                 beforeCrossroadTimer = null;
                 detectedCrossroad = false;
-//                enabled = false;
+                enabled = false;
                 isAlreadyDrivingStraight = false;
-//                callback.onDetectCrossroad();
+                callback.onDetectCrossroad();
                 return;
             }
 
@@ -113,7 +113,9 @@ public class LineSensors implements Updatable, LineSensorCallback {
 
             // If all of the line sensor see a black line, that means for sure
             // that the BoeBot came across a crossroad.
-            if (seesLineStates[0] && seesLineStates[1] && seesLineStates[2]) {
+            if (seesLineStates[0] &&
+//                    seesLineStates[1] &&
+                    seesLineStates[2]) {
                 detectedCrossroad = true;
 
                 // Delays the callback to RobotMain to make sure the bot drives
@@ -150,7 +152,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
             else if (deviateLeftTimer.timeout()) {
                 deviateLeftTimer = null;
                 isAlreadyDrivingStraight = false;
-                callback.onDeviate(true);
+                callback.onDeviate(false);
                 return;
             }
 
@@ -173,7 +175,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
             else if (deviateRightTimer.timeout()) {
                 deviateRightTimer = null;
                 isAlreadyDrivingStraight = false;
-                callback.onDeviate(false);
+                callback.onDeviate(true);
             }
         }
         // If delayEnabledWhenDrivingBackwards() was called, and it timed out

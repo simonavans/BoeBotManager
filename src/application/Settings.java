@@ -7,6 +7,8 @@ package application;
  */
 class Settings {
     final int ROBOTMAIN_NUDGE_FORWARD_TIME;
+    // todo remove
+    final int ROBOTMAIN_DELAY_SUCCESSIVE_DEVIATIONS_WHEN_DRIVING_BACKWARDS;
     final int ULTRASONIC_CLOSE_THRESHOLD;
     final int ULTRASONIC_FAR_THRESHOLD;
     final int ENGINE_NEUTRAL_OFFSET_LEFT;
@@ -16,12 +18,16 @@ class Settings {
     final int ENGINE_TURN_SPEED_BACKWARD;
     final int ENGINE_ADJUST_DIRECTION_SPEED_FORWARD;
     final int ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD;
+    final int ENGINE_ADJUST_DIRECTION_SPEED_FORWARD_REVERSE;
+    final int ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD_REVERSE;
     final int ENGINE_TURN_TIME;
     final int ENGINE_OBJECT_PLACEMENT_TIME;
     final int IR_RECEIVER_BIT_THRESHOLD;
-    final int LINE_SENSOR_THRESHOLD;
+    final int LINE_SENSOR_THRESHOLD_LEFT;
+    final int LINE_SENSOR_THRESHOLD_MIDDLE;
+    final int LINE_SENSOR_THRESHOLD_RIGHT;
     final int LINE_SENSOR_CEILING;
-    final int LINE_SENSORS_WAIT_AFTER_DEVIATION;
+    final int LINE_SENSORS_WAIT_BEFORE_DEVIATION;
     final int LINE_SENSORS_WAIT_BEFORE_CROSSROAD;
     final int LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS;
     final int BLUETOOTH_BAUDRATE;
@@ -41,12 +47,20 @@ class Settings {
 
     // todo comment on parameters
     /**
-     * Please note that all time units in the following parameters are in milliseconds.
+     * IMPORTANT NOTE: all time units of the following parameters are in milliseconds.
      *
      * @param ROBOTMAIN_NUDGE_FORWARD_TIME when the BoeBot's line sensors are right above a crossroad, this would be
      *                                     the time in milliseconds it takes for the bot to move forward just a bit,
      *                                     so that its body is centered on the crossroad. This setting is exclusively
      *                                     used for when the bot is driving backwards toward a previous crossroad.
+     *
+     * @param ROBOTMAIN_DELAY_SUCCESSIVE_DEVIATIONS_WHEN_DRIVING_BACKWARDS when the BoeBot is driving backwards and a deviation
+     *                                                                    has been detected, the BoeBot will try to adjust itself
+     *                                                                    to the line again. After this, there needs to be a small
+     *                                                                    delay before the bot can adjust itself again, otherwise
+     *                                                                    the line sensor will keep detecting the deviation. Note
+     *                                                                    that this is delay is only applicable when the bot is
+     *                                                                    driving backwards.
      *
      * @param ULTRASONIC_CLOSE_THRESHOLD the threshold value at which the ultrasonic sensor responsible for grabbing
      *                                   objects should notify that it is safe to close the gripper and grab the object.
@@ -87,6 +101,10 @@ class Settings {
      *                                               when the bot needs to steer to the left to adjust, the left wheel will
      *                                               drive backward and the right wheel will drive forward. This parameter
      *                                               signifies the speed of the wheel going backward.
+     *                          todo comment
+     * @param ENGINE_ADJUST_DIRECTION_SPEED_FORWARD_REVERSE
+     *
+     * @param ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD_REVERSE
      *
      * @param ENGINE_TURN_TIME the time in milliseconds it takes the engine to make a 90 degree turn, using the forward
      *                         speed and back steer speed variables mentioned in this constructor.
@@ -101,15 +119,26 @@ class Settings {
      *                                  incoming bit is defined as a zero, and equal to or above this value, it is
      *                                  interpreted as a one.
      *
-     * @param LINE_SENSOR_THRESHOLD the threshold value at which the line sensors make the distinction between a white
-     *                              surface and a black line. Every measurement below this threshold is interpreted
-     *                              as white, and equal to or above this value is interpreted as black.
+     * @param LINE_SENSOR_THRESHOLD_LEFT  the threshold value at which the left line sensor makes the distinction
+     *                                    between a white surface and a black line. Every measurement below this
+     *                                    threshold is interpreted as white, and equal to or above this value is
+     *                                    interpreted as black.
+     *
+     * @param LINE_SENSOR_THRESHOLD_MIDDLE the threshold value at which the middle line sensor makes the distinction
+     *                                     between a white surface and a black line. Every measurement below this
+     *                                     threshold is interpreted as white, and equal to or above this value is
+     *                                     interpreted as black.
+     *
+     * @param LINE_SENSOR_THRESHOLD_RIGHT the threshold value at which the right line sensor makes the distinction
+     *                                    between a white surface and a black line. Every measurement below this
+     *                                    threshold is interpreted as white, and equal to or above this value is
+     *                                    interpreted as black.
      *
      * @param LINE_SENSOR_CEILING the ceiling value that, when reached, are perceived as too high and therefore
      *                            incorrect. This value should be higher than the highest value measured when measuring
      *                            a black line.
      *
-     * @param LINE_SENSORS_WAIT_AFTER_DEVIATION how long the LineSensors class should wait with defining a deviation as
+     * @param LINE_SENSORS_WAIT_BEFORE_DEVIATION how long the LineSensors class should wait with defining a deviation as
      *                                          a true deviation. Setting this value too low can lead to detecting a
      *                                          deviation, when in reality the line sensors are detecting part of a
      *                                          crossroad. This may result in the BoeBot losing track of the line.
@@ -162,18 +191,21 @@ class Settings {
      */
     Settings(
             // RobotMain
-            int ROBOTMAIN_NUDGE_FORWARD_TIME,
+            int ROBOTMAIN_NUDGE_FORWARD_TIME, int ROBOTMAIN_DELAY_SUCCESSIVE_DEVIATIONS_WHEN_DRIVING_BACKWARDS,
             // Ultrasonic
             int ULTRASONIC_CLOSE_THRESHOLD, int ULTRASONIC_FAR_THRESHOLD,
             // Engine
             int ENGINE_NEUTRAL_OFFSET_LEFT, int ENGINE_NEUTRAL_OFFSET_RIGHT, int ENGINE_DRIVE_SPEED,
             int ENGINE_TURN_SPEED_FORWARD, int ENGINE_TURN_SPEED_BACKWARD,
             int ENGINE_ADJUST_DIRECTION_SPEED_FORWARD, int ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD,
+            int ENGINE_ADJUST_DIRECTION_SPEED_FORWARD_REVERSE, int ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD_REVERSE,
             int ENGINE_TURN_TIME, int ENGINE_OBJECT_PLACEMENT_TIME,
             // IR Receiver
             int IR_RECEIVER_BIT_THRESHOLD,
             // Line Sensor(s)
-            int LINE_SENSOR_THRESHOLD, int LINE_SENSOR_CEILING, int LINE_SENSORS_WAIT_AFTER_DEVIATION, int LINE_SENSORS_WAIT_BEFORE_CROSSROAD, int LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS,
+            int LINE_SENSOR_THRESHOLD_LEFT, int LINE_SENSOR_THRESHOLD_MIDDLE, int LINE_SENSOR_THRESHOLD_RIGHT,
+            int LINE_SENSOR_CEILING, int LINE_SENSORS_WAIT_BEFORE_DEVIATION, int LINE_SENSORS_WAIT_BEFORE_CROSSROAD,
+            int LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS,
             // Bluetooth
             int BLUETOOTH_BAUDRATE,
             // Gripper
@@ -184,6 +216,7 @@ class Settings {
             int IR_RECEIVER_PIN, int BUZZER_PIN, int BUTTON_PIN, int[] LINE_SENSOR_ADC_PINS
     ) {
         this.ROBOTMAIN_NUDGE_FORWARD_TIME = ROBOTMAIN_NUDGE_FORWARD_TIME;
+        this.ROBOTMAIN_DELAY_SUCCESSIVE_DEVIATIONS_WHEN_DRIVING_BACKWARDS = ROBOTMAIN_DELAY_SUCCESSIVE_DEVIATIONS_WHEN_DRIVING_BACKWARDS;
 
         this.ULTRASONIC_CLOSE_THRESHOLD = ULTRASONIC_CLOSE_THRESHOLD;
         this.ULTRASONIC_FAR_THRESHOLD = ULTRASONIC_FAR_THRESHOLD;
@@ -195,14 +228,20 @@ class Settings {
         this.ENGINE_TURN_SPEED_BACKWARD = ENGINE_TURN_SPEED_BACKWARD;
         this.ENGINE_ADJUST_DIRECTION_SPEED_FORWARD = ENGINE_ADJUST_DIRECTION_SPEED_FORWARD;
         this.ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD = ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD;
+        //todo mention this
+        // Force variables to be negative
+        this.ENGINE_ADJUST_DIRECTION_SPEED_FORWARD_REVERSE = -Math.abs(ENGINE_ADJUST_DIRECTION_SPEED_FORWARD_REVERSE);
+        this.ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD_REVERSE = -Math.abs(ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD_REVERSE);
         this.ENGINE_TURN_TIME = ENGINE_TURN_TIME;
         this.ENGINE_OBJECT_PLACEMENT_TIME = ENGINE_OBJECT_PLACEMENT_TIME;
 
         this.IR_RECEIVER_BIT_THRESHOLD = IR_RECEIVER_BIT_THRESHOLD;
 
-        this.LINE_SENSOR_THRESHOLD = LINE_SENSOR_THRESHOLD;
+        this.LINE_SENSOR_THRESHOLD_LEFT = LINE_SENSOR_THRESHOLD_LEFT;
+        this.LINE_SENSOR_THRESHOLD_MIDDLE = LINE_SENSOR_THRESHOLD_MIDDLE;
+        this.LINE_SENSOR_THRESHOLD_RIGHT = LINE_SENSOR_THRESHOLD_RIGHT;
         this.LINE_SENSOR_CEILING = LINE_SENSOR_CEILING;
-        this.LINE_SENSORS_WAIT_AFTER_DEVIATION = LINE_SENSORS_WAIT_AFTER_DEVIATION;
+        this.LINE_SENSORS_WAIT_BEFORE_DEVIATION = LINE_SENSORS_WAIT_BEFORE_DEVIATION;
         this.LINE_SENSORS_WAIT_BEFORE_CROSSROAD = LINE_SENSORS_WAIT_BEFORE_CROSSROAD;
         this.LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS = LINE_SENSORS_WAIT_AFTER_DRIVING_BACKWARDS;
 
