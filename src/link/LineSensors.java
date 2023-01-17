@@ -81,13 +81,13 @@ public class LineSensors implements Updatable, LineSensorCallback {
 
             // If there was a before crossroad timer and it timed out, then
             // the BoeBot is exactly on a crossroad. Therefore, call
-            // onDetectCrossroad().
+            // onAlignedOnCrossroad().
             if (beforeCrossroadTimer != null && beforeCrossroadTimer.timeout()) {
                 beforeCrossroadTimer = null;
                 detectedCrossroad = false;
                 enabled = false;
                 isAlreadyDrivingStraight = false;
-                callback.onDetectCrossroad();
+                callback.onAlignedOnCrossroad();
                 return;
             }
 
@@ -114,7 +114,7 @@ public class LineSensors implements Updatable, LineSensorCallback {
             // If all of the line sensor see a black line, that means for sure
             // that the BoeBot came across a crossroad.
             if (seesLineStates[0] &&
-//                    seesLineStates[1] &&
+                    seesLineStates[1] &&
                     seesLineStates[2]) {
                 detectedCrossroad = true;
 

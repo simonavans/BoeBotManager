@@ -7,8 +7,6 @@ package application;
  */
 class Settings {
     final int ROBOTMAIN_NUDGE_FORWARD_TIME;
-    // todo remove
-    final int ROBOTMAIN_DELAY_SUCCESSIVE_DEVIATIONS_WHEN_DRIVING_BACKWARDS;
     final int ULTRASONIC_CLOSE_THRESHOLD;
     final int ULTRASONIC_FAR_THRESHOLD;
     final int ENGINE_NEUTRAL_OFFSET_LEFT;
@@ -54,14 +52,6 @@ class Settings {
      *                                     so that its body is centered on the crossroad. This setting is exclusively
      *                                     used for when the bot is driving backwards toward a previous crossroad.
      *
-     * @param ROBOTMAIN_DELAY_SUCCESSIVE_DEVIATIONS_WHEN_DRIVING_BACKWARDS when the BoeBot is driving backwards and a deviation
-     *                                                                    has been detected, the BoeBot will try to adjust itself
-     *                                                                    to the line again. After this, there needs to be a small
-     *                                                                    delay before the bot can adjust itself again, otherwise
-     *                                                                    the line sensor will keep detecting the deviation. Note
-     *                                                                    that this is delay is only applicable when the bot is
-     *                                                                    driving backwards.
-     *
      * @param ULTRASONIC_CLOSE_THRESHOLD the threshold value at which the ultrasonic sensor responsible for grabbing
      *                                   objects should notify that it is safe to close the gripper and grab the object.
      *
@@ -101,7 +91,7 @@ class Settings {
      *                                               when the bot needs to steer to the left to adjust, the left wheel will
      *                                               drive backward and the right wheel will drive forward. This parameter
      *                                               signifies the speed of the wheel going backward.
-     *                          todo comment
+     *
      * @param ENGINE_ADJUST_DIRECTION_SPEED_FORWARD_REVERSE
      *
      * @param ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD_REVERSE
@@ -191,7 +181,7 @@ class Settings {
      */
     Settings(
             // RobotMain
-            int ROBOTMAIN_NUDGE_FORWARD_TIME, int ROBOTMAIN_DELAY_SUCCESSIVE_DEVIATIONS_WHEN_DRIVING_BACKWARDS,
+            int ROBOTMAIN_NUDGE_FORWARD_TIME,
             // Ultrasonic
             int ULTRASONIC_CLOSE_THRESHOLD, int ULTRASONIC_FAR_THRESHOLD,
             // Engine
@@ -216,7 +206,6 @@ class Settings {
             int IR_RECEIVER_PIN, int BUZZER_PIN, int BUTTON_PIN, int[] LINE_SENSOR_ADC_PINS
     ) {
         this.ROBOTMAIN_NUDGE_FORWARD_TIME = ROBOTMAIN_NUDGE_FORWARD_TIME;
-        this.ROBOTMAIN_DELAY_SUCCESSIVE_DEVIATIONS_WHEN_DRIVING_BACKWARDS = ROBOTMAIN_DELAY_SUCCESSIVE_DEVIATIONS_WHEN_DRIVING_BACKWARDS;
 
         this.ULTRASONIC_CLOSE_THRESHOLD = ULTRASONIC_CLOSE_THRESHOLD;
         this.ULTRASONIC_FAR_THRESHOLD = ULTRASONIC_FAR_THRESHOLD;

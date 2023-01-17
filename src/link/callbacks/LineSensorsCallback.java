@@ -6,7 +6,7 @@ package link.callbacks;
  * @author Simon
  */
 public interface LineSensorsCallback {
-    void onDetectCrossroad();
+    void onAlignedOnCrossroad();
     void onDeviate(boolean detectedByLeftSensor);
     void onDriveStraight();
 }

@@ -9,7 +9,7 @@ import hardware.inputdevices.Button;
 import hardware.outputdevices.Buzzer;
 import hardware.outputdevices.Engine;
 import hardware.outputdevices.Gripper;
-import hardware.outputdevices.led.NeoPixel;
+import hardware.outputdevices.NeoPixel;
 import link.LineSensors;
 import link.Updatable;
 import link.callbacks.*;
@@ -17,16 +17,12 @@ import link.callbacks.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-//todo physically connect buzzer and far ultrasonic to pin number in settings
-
 /**
  * The heart of the BoeBot application. It initializes the BoeBot and makes sure hardware is running.
  * It also makes sure that all the BoeBot's high level logic, like stopping on crossroads, work.
  * The BoeBot can receive Bluetooth commands from a BoeBot application running on another computer.
  * This class makes sure the received commands are interpreted correctly and that they control the
  * BoeBot's hardware correctly.
- *
- * @author all members of team B2
  */
 public class RobotMain implements IRReceiverCallback, UltrasonicCallback, ButtonCallback, LineSensorsCallback, BluetoothCallback, EngineCallback {
     // ArrayList containing all hardware that needs to run constantly
@@ -35,14 +31,13 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
     // Settings of the current BoeBot setup. Values may differ between BoeBots.
     private final Settings settings = new Settings(
             // RobotMain
-            //todo remove delay successive deviations
-            800, 0000,
+             400,
             // Ultrasonic
-            3, 100,
+            3, 67,
             // Engine
             -2, -3, 35,
             25, -40,
-            25, -50,
+            25, -35,
             30, 40,
             1300, 800,
             // IR Receiver
@@ -50,14 +45,14 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             // Line Sensor(s)
             1390, 1500, 1390,
             1800, 300, 500,
-            500,
+            800,
             // Bluetooth
             115200,
             // Gripper
-            2500, 500,
+            1400, 600,
             // Pins
-            4, 11, 5, 10,
-            13, 12, 15, 3, 14, 0, new int[]{0, 1, 2});
+            1, 11, 3, 10,
+            13, 12, 15, 2, 14, 0, new int[]{0, 1, 2});
 
 
     // Output updatables, they alter the state of the BoeBot or log useful information to the user, like LEDs
@@ -185,7 +180,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
      * @author Simon
      */
     @Override
-    public void onDetectCrossroad() {
+    public void onAlignedOnCrossroad() {
         ultrasonicClose.setEnabled(false);
         ultrasonicFar.setEnabled(false);
         engine.brake();
@@ -197,10 +192,14 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             // If the BoeBot was previously driving backwards, we have not accounted yet
             // for the bot ending up slightly misaligned on the crossroad. Therefore,
             // we need the BoeBot to drive just a tiny bit forward.
-            nudgeForwardTimer = new Timer(settings.ROBOTMAIN_NUDGE_FORWARD_TIME);
+            // Since we have to account for the delay of the line sensors when they detect
+            // a crossroad, we need to add that wait time to the nudge forward time.
+            nudgeForwardTimer = new Timer(settings.LINE_SENSORS_WAIT_BEFORE_CROSSROAD + settings.ROBOTMAIN_NUDGE_FORWARD_TIME);
             nudgeForwardTimer.mark();
             engine.drive(false);
-        } else {
+        }
+        // If the engine was not in reverse, that means that we're done.
+        else {
             listeningForCommands = true;
             bluetoothReceiver.transmitCommand("Boebot: Succeeded");
         }
@@ -241,13 +240,15 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
 
     /**
      * If the Engine class was instructed to turn, it notifies when it has completed
-     * turning. As a result, this method will run. All it does is notify the application
-     * that new commands can be sent.
+     * turning. As a result, this method will run, which instructs the engine to
+     * move forward ever so slightly, so that the BoeBot is perfectly aligned on the
+     * crossroad. After that, new commands can be sent to the bot.
+     *
+     * @author Simon
      */
     @Override
     public void onCompletedTurn() {
-        //todo comment
-        nudgeForwardTimer = new Timer(settings.ROBOTMAIN_NUDGE_FORWARD_TIME / 2);
+        nudgeForwardTimer = new Timer(settings.ROBOTMAIN_NUDGE_FORWARD_TIME);
         nudgeForwardTimer.mark();
         engine.drive(false);
     }
@@ -282,7 +283,10 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             ultrasonicClose.setEnabled(false);
             gripper.close();
         } else if (source == ultrasonicFar) {
-            bluetoothReceiver.transmitCommand("Boebot: Object");
+            //fixme debugging
+//            System.out.println("UNKNOWN OBJECT SPOTTED: " + ultrasonicFar.getSensorValue());
+//            ultrasonicFar.setEnabled(false);
+//            bluetoothReceiver.transmitCommand("Boebot: Object");
         }
     }
 
@@ -317,7 +321,11 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
             // route, it sends this command. As a result, the bot tries to go to the previous
             // crossroad. The application recalculates the route.
             case "Application: Uncharted":
-                //todo give signal that there is an unknown object on the path
+                //fixme debugging
+                System.out.println("UNKNOWN OBJECT SPOTTED: " + ultrasonicFar.getSensorValue());
+                pixel3.blink(new Color(100, 0, 0), 1000, 1, false);
+                pixel4.blink(new Color(100, 0, 0), 1000, 1, false);
+                pixel5.blink(new Color(100, 0, 0), 1000, 1, false);
                 engine.drive(true);
                 lineSensors.setEnabled(true);
                 pixel1.blink(new Color(100, 0, 0), 10000, 20, false);
@@ -331,7 +339,7 @@ public class RobotMain implements IRReceiverCallback, UltrasonicCallback, Button
                 case "Application: Forward":
                     lineSensors.setEnabled(true);
                     engine.drive(false);
-                    ultrasonicClose.setEnabled(true);
+                    if (gripper.isOpened()) ultrasonicClose.setEnabled(true);
                     ultrasonicFar.setEnabled(true);
                     break;
 

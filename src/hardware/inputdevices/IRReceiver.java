@@ -3,12 +3,10 @@ package hardware.inputdevices;
 import TI.BoeBot;
 import application.RobotMain;
 import hardware.PinRegistry;
-import hardware.outputdevices.led.NeoPixel;
+import hardware.outputdevices.NeoPixel;
 import link.Updatable;
 
 import java.awt.*;
-
-//todo check if timo is author of this class
 
 /**
  * Class for the infrared sensor/receiver that picks up signals from a Vivanco remote.
@@ -38,7 +36,7 @@ public class IRReceiver implements Updatable {
     /**
      * Method which returns code transmitted by the IR remote. The code is an integer.
      *
-     * @author
+     * @author Simon and Timo
      */
     @Override
     public void update() {

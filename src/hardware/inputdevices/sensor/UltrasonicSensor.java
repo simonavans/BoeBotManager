@@ -4,7 +4,7 @@ import TI.BoeBot;
 import TI.Timer;
 import application.RobotMain;
 import hardware.PinRegistry;
-import hardware.outputdevices.led.NeoPixel;
+import hardware.outputdevices.NeoPixel;
 import link.Updatable;
 
 import java.awt.*;
@@ -107,7 +107,7 @@ public class UltrasonicSensor implements Updatable, Sensor {
      *
      * @author Kerr
      */
-    private Integer getSensorValue() {
+    public Integer getSensorValue() {
         if (!measurementCooldown.timeout()) return measuredDistance;
 
         // Send a signal of 1 microsecond to trigger the ultrasonic sensor

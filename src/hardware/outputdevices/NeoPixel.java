@@ -1,4 +1,4 @@
-package hardware.outputdevices.led;
+package hardware.outputdevices;
 
 import TI.BoeBot;
 import TI.Timer;
