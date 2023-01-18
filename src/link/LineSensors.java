@@ -3,14 +3,13 @@ package link;
 import TI.Timer;
 import application.RobotMain;
 import hardware.inputdevices.sensor.LineSensor;
-import link.callbacks.LineSensorCallback;
 
 /**
  * This class sits in between the LineSensor and RobotMain classes. It directly
  * controls the three line sensors on the BoeBot and, using this information,
  * can detect deviations and crossroads.
  */
-public class LineSensors implements Updatable, LineSensorCallback {
+public class LineSensors implements Updatable {
     // More clarification for some of the variables in this class
     // can be found in the Settings class.
 
@@ -71,13 +70,6 @@ public class LineSensors implements Updatable, LineSensorCallback {
                     sensorMiddle.isOnOrOverThreshold(),
                     sensorRight.isOnOrOverThreshold()
             };
-
-            //fixme debugging, remove in final version
-//            if (seesLineStates[0] && seesLineStates[1] && seesLineStates[2]) {
-//                System.out.println(sensorLeft.value() + "\t" +
-//                        sensorMiddle.value() + "\t" +
-//                        sensorRight.value());
-//            }
 
             // If there was a before crossroad timer and it timed out, then
             // the BoeBot is exactly on a crossroad. Therefore, call
@@ -186,50 +178,6 @@ public class LineSensors implements Updatable, LineSensorCallback {
     }
 
     /**
-     * When a line sensor tells this class that it detected a line, this method
-     * runs. It will update the seesLineStates variable.
-     * @param source which line sensor it was (left, middle or right).
-     *
-     * @author Simon
-     */
-    @Override
-    public void onLineDetectedEvent(LineSensor source) {
-        // In seesLineStates:
-        // Element 0 is for the leftmost line sensor,
-        // element 1 is for the middle line sensor and
-        // element 2 is for the rightmost line sensor.
-        if (source == sensorLeft) {
-            seesLineStates[0] = true;
-        } else if (source == sensorMiddle) {
-            seesLineStates[1] = true;
-        } else if (source == sensorRight) {
-            seesLineStates[2] = true;
-        }
-    }
-
-    /**
-     * When a line sensor tells this class that it detected no lines,
-     * this method runs. It will update the seesLineStates variable.
-     * @param source which line sensor it was (left, middle or right).
-     *
-     * @author Simon
-     */
-    @Override
-    public void onNoLineDetectedEvent(LineSensor source) {
-        // In seesLineStates:
-        // Element 0 is for the leftmost line sensor,
-        // element 1 is for the middle line sensor and
-        // element 2 is for the rightmost line sensor.
-        if (source == sensorLeft) {
-            seesLineStates[0] = false;
-        } else if (source == sensorMiddle) {
-            seesLineStates[1] = false;
-        } else if (source == sensorRight) {
-            seesLineStates[2] = false;
-        }
-    }
-
-    /**
      * Delays the enabling of the line sensors when the BoeBot drives
      * backwards. This is to account for the fact that otherwise, the
      * line sensors would detect the crossroad it is already on as the
@@ -245,8 +193,8 @@ public class LineSensors implements Updatable, LineSensorCallback {
     }
 
     /**
-     * @author Simon
      * @param isEnabled whether the line sensors should be enabled or not
+     * @author Simon
      */
     public void setEnabled(boolean isEnabled) {
         delayedEnablingTimer = null;

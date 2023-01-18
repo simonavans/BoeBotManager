@@ -43,7 +43,6 @@ class Settings {
     final int BUTTON_PIN;
     final int[] LINE_SENSOR_ADC_PINS;
 
-    // todo comment on parameters
     /**
      * IMPORTANT NOTE: all time units of the following parameters are in milliseconds.
      *
@@ -92,9 +91,15 @@ class Settings {
      *                                               drive backward and the right wheel will drive forward. This parameter
      *                                               signifies the speed of the wheel going backward.
      *
-     * @param ENGINE_ADJUST_DIRECTION_SPEED_FORWARD_REVERSE
+     * @param ENGINE_ADJUST_DIRECTION_SPEED_FORWARD_REVERSE the information from variable ENGINE_ADJUST_DIRECTION_SPEED_FORWARD
+     *                                                      can be replicated to this variable, except this variable
+     *                                                      is for when the engine is in reverse. Therefore, the value
+     *                                                      of this variable is converted to a positive integer.
      *
-     * @param ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD_REVERSE
+     * @param ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD_REVERSE the information from variable ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD
+     *                                                       can be replicated to this variable, except this variable
+     *                                                       is for when the engine is in reverse. Therefore, the value
+     *                                                       of this variable is converted to a positive integer.
      *
      * @param ENGINE_TURN_TIME the time in milliseconds it takes the engine to make a 90 degree turn, using the forward
      *                         speed and back steer speed variables mentioned in this constructor.
@@ -217,8 +222,6 @@ class Settings {
         this.ENGINE_TURN_SPEED_BACKWARD = ENGINE_TURN_SPEED_BACKWARD;
         this.ENGINE_ADJUST_DIRECTION_SPEED_FORWARD = ENGINE_ADJUST_DIRECTION_SPEED_FORWARD;
         this.ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD = ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD;
-        //todo mention this
-        // Force variables to be negative
         this.ENGINE_ADJUST_DIRECTION_SPEED_FORWARD_REVERSE = -Math.abs(ENGINE_ADJUST_DIRECTION_SPEED_FORWARD_REVERSE);
         this.ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD_REVERSE = -Math.abs(ENGINE_ADJUST_DIRECTION_SPEED_BACKWARD_REVERSE);
         this.ENGINE_TURN_TIME = ENGINE_TURN_TIME;

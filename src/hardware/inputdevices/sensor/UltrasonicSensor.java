@@ -51,6 +51,60 @@ public class UltrasonicSensor implements Updatable, Sensor {
     }
 
     /**
+     * When enabled, this method sends its measurements to RobotMain using a
+     * callback.
+     *
+     * @author Kerr and Simon
+     */
+    @Override
+    public void update() {
+        if (!enabled) return;
+
+        if (isOnOrOverThreshold()) {
+            callback.onUltrasonicSensorEvent(this);
+        }
+    }
+
+    /**
+     * Measures the current distance between the sensor and any obstructions.
+     * @return the distance (in centimeters) between the object that caused the
+     * reverberation and the sensor.
+     *
+     * @author Kerr
+     */
+    private int getSensorValue() {
+        if (!measurementCooldown.timeout()) return measuredDistance;
+
+        // Send a signal of 1 microsecond to trigger the ultrasonic sensor
+        BoeBot.digitalWrite(outputPinNumber, true);
+        BoeBot.uwait(1);
+        BoeBot.digitalWrite(outputPinNumber, false);
+
+        // Wait for the return pulse of the ultrasonic sensor
+        int pulse = BoeBot.pulseIn(inputPinNumber, true, 10000);
+
+        // To convert the pulse into centimeters, the pulse has to be divided by 58 (integer division is intentional)
+        measuredDistance = pulse / 58;
+        return measuredDistance;
+    }
+
+    /**
+     * Method for deciding whether or not the current measurement has reached
+     * the threshold for taking action.
+     * @return true if the distance between the ultrasonic sensor and the object
+     * which caused the reverberation is smaller than or equal to the threshold
+     * value, which is considered to be "right in front of it". For a correct
+     * measurement, the value needs to be greater than 0.
+     *
+     * @author Kerr
+     */
+    @Override
+    public boolean isOnOrOverThreshold() {
+        int measuredValue = getSensorValue();
+        return measuredValue > 0 && measuredValue <= threshold;
+    }
+
+    /**
      * Method used for enabling or disabling the sensor. Its assigned Neopixel will
      * turn green when enabled and red when disabled.
      * @param enabled whether the sensor should be enabled or disabled.
@@ -67,59 +121,5 @@ public class UltrasonicSensor implements Updatable, Sensor {
         } else {
             ultrasonicPixel.turnOn(new Color(128, 0, 0));
         }
-    }
-
-    /**
-     * When enabled, this method sends its measurements to RobotMain using a
-     * callback.
-     *
-     * @author Simon and Kerr
-     */
-    @Override
-    public void update() {
-        if (!enabled) return;
-
-        if (isOnOrOverThreshold()) {
-            callback.onUltrasonicSensorEvent(this);
-        }
-    }
-
-    /**
-     * Method for deciding whether or not the current measurement has reached
-     * the threshold for taking action.
-     * @return true if the distance between the ultrasonic sensor and the object
-     * which caused the reverberation is smaller than or equal to the threshold
-     * value, which is considered to be "right in front of it". For a correct
-     * measurement, the value needs to be greater than 0.
-     *
-     * @author Kerr
-     */
-    @Override
-    public boolean isOnOrOverThreshold() {
-        Integer measuredValue = getSensorValue();
-        return measuredValue > 0 && measuredValue <= threshold;
-    }
-
-    /**
-     * Measures the current distance between the sensor and any obstructions.
-     * @return the distance (in centimeters) between the object that caused the
-     * reverberation and the sensor.
-     *
-     * @author Kerr
-     */
-    public Integer getSensorValue() {
-        if (!measurementCooldown.timeout()) return measuredDistance;
-
-        // Send a signal of 1 microsecond to trigger the ultrasonic sensor
-        BoeBot.digitalWrite(outputPinNumber, true);
-        BoeBot.uwait(1);
-        BoeBot.digitalWrite(outputPinNumber, false);
-
-        // Wait for the return pulse of the ultrasonic sensor
-        int pulse = BoeBot.pulseIn(inputPinNumber, true, 10000);
-
-        // To convert the pulse into centimeters, the pulse has to be divided by 58 (integer division is intentional)
-        measuredDistance = pulse / 58;
-        return measuredDistance;
     }
 }

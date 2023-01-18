@@ -6,6 +6,11 @@ import application.RobotMain;
 import hardware.PinRegistry;
 import link.Updatable;
 
+/**
+ * Class that controls the engine of the BoeBot, meaning the Servo
+ * wheels of the BoeBot. They are important for driving, steering,
+ * turning and more.
+ */
 public class Engine implements Updatable {
     // More clarification for some of the variables in this class
     // can be found in the Settings class.

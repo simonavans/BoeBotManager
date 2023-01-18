@@ -93,12 +93,5 @@ public class PinRegistry {
                         "Invalid pin mode: " + pinMode
                 );
         }
-
-        //todo fix this whole class basically :(
-//        if (pins.containsKey("" + pinNumber) && pins.get("" + pinNumber).equals(pinMode)) {
-//            throw new IllegalArgumentException(
-//                    "Pin number " + pinNumber + " is already occupied with mode " + pinMode
-//            );
-//        }
     }
 }

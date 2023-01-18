@@ -29,16 +29,11 @@ public class LineSensor implements Sensor {
     /**
      * @return whether the threshold was reached
      *
-     * @author Simon
+     * @author Kerr and Simon
      */
     @Override
     public boolean isOnOrOverThreshold() {
         return BoeBot.analogRead(pinNumber) >= threshold &&
                 BoeBot.analogRead(pinNumber) < ceiling;
-    }
-
-    // fixme: for debugging, remove later
-    public String value() {
-        return BoeBot.analogRead(pinNumber) + " on " + pinNumber;
     }
 }

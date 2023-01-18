@@ -1,7 +1,7 @@
 package link.callbacks;
 
 /**
- * Used for communication between classes LineSensors and RobotMain
+ * Used for communication between classes LineSensors and RobotMain.
  *
  * @author Simon
  */
