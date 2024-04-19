@@ -1,3 +1,5 @@
-Description: TODO
+Hardware controller software for controlling a 'BoeBot', an autonomously guidable vehicle that can traverse flat surfaces. By connecting peripherals to it and writing custom code to make them work, the robot is able to navigate to coordinates on a grid-like surface. Such peripherals include a Bluetooth receiver, light sensors, an infrared receiver and more. It can also pick up and put down objects on demand. This was a group assignment for the AGV course of Computer Science (Avans University of Applied Sciences).
+
+The Java software communicates with a [user interface](https://github.com/simonavans/BoeBotUI) for navigation and user input. The user interface communicates to the BoeBot which object(s) to pick up and uses a shortest path algorithm to determine the navigation. The robot supports basic movements such as driving, turning and reversing. It avoids collision with obstacles in the process. Additionally, it supports overriding controls for infrared remote controls.
 
 [Showcase video on YouTube](https://youtu.be/sjxsNrNZvPM)
